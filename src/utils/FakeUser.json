@@ -1,0 +1,50 @@
+[
+    {
+      "gender": "female",
+      "name": { "first": "Emma", "last": "1" },
+      "email": "emma.johnson@example.com",
+      "picture": { "large": "https://randomuser.me/api/portraits/women/1.jpg" },
+      "nat": "US",
+      "loading": false
+    },
+    {
+      "gender": "male",
+      "name": { "first": "John", "last": "2" },
+      "email": "john.doe@example.com",
+      "picture": { "large": "https://randomuser.me/api/portraits/men/1.jpg" },
+      "nat": "US",
+      "loading": false
+    },
+    {
+      "gender": "female",
+      "name": { "first": "Jane", "last": "3" },
+      "email": "jane.smith@example.com",
+      "picture": { "large": "https://randomuser.me/api/portraits/women/2.jpg" },
+      "nat": "UK",
+      "loading": false
+    },
+    {
+        "gender": "female",
+        "name": { "first": "Jane", "last": "4" },
+        "email": "jane.smith@example.com",
+        "picture": { "large": "https://randomuser.me/api/portraits/women/2.jpg" },
+        "nat": "UK",
+        "loading": false
+    },
+    {
+        "gender": "female",
+        "name": { "first": "Jane", "last": "5" },
+        "email": "jane.smith@example.com",
+        "picture": { "large": "https://randomuser.me/api/portraits/women/2.jpg" },
+        "nat": "UK",
+        "loading": false
+    },
+    {
+        "gender": "female",
+        "name": { "first": "Jane", "last": "6" },
+        "email": "jane.smith@example.com",
+        "picture": { "large": "https://randomuser.me/api/portraits/women/2.jpg" },
+        "nat": "UK",
+        "loading": false
+    }
+]
