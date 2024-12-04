@@ -5,7 +5,7 @@ export default async function POST(req, res) {
     const { email, password } = req.body;
     try {
         const { data: response } = await axios.request({
-            url: `${process.env.SERVER_URL}/users/login`,
+            url: `${process.env.SERVER_URL}/auth/login`,
             method: 'POST',
             data: {
                 email,

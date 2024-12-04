@@ -26,7 +26,7 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('Nueva seccion', '1', <SnippetsOutlined/>),
+    getItem('Lista de reportes', '1', <SnippetsOutlined/>),
     //getItem('Test', '2', <LikeOutlined />),
     // Puedes agregar más opciones aquí
 ];

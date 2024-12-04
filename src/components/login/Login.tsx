@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input, Flex } from 'antd';
 import Image from 'next/image';
 import { StateAuthInterface, useAuthStore } from '@/store/useAuthStore';
@@ -47,7 +47,7 @@ const Login = () => {
         <div className='flex flex-col justify-center items-center gap-10 px-5 w-full'>
             <div className='flex flex-col justify-center items-center w-full gap-10'>
                 <div className='relative w-full h-24'>
-                    <Image src={'/logo_color.png'} alt='Logo Lifequiro' fill className='object-contain' />
+                    <Image src={'/logo_color.png'} alt='Logo Lifequiro' fill className='object-contain' priority/>
                 </div>
                 <div className='flex flex-col gap-2 justify-center items-center'>
                     <p className='text-2xl md:text-3xl font-semibold text-center'>Acceda a su cuenta</p>
@@ -74,7 +74,13 @@ const Login = () => {
                             name="password"
                             rules={[{ required: true, message: 'Introduzca su contraseña' }]}
                         >
-                            <Input prefix={<LockOutlined />} type="password" placeholder="Password" size='large' />
+                            <Input.Password
+                                placeholder="Password" 
+                                size='large'
+                                prefix={<LockOutlined />}
+                                type="password"
+                                iconRender={(visible) => (visible ? <EyeTwoTone/> : <EyeInvisibleOutlined/>)}
+                            />
                         </Form.Item>
                     </div>
                     {/* <Form.Item>

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
+* {
     margin: 0;
     /* background-color: red; */
 }
@@ -11,15 +11,78 @@
     min-height: 350px;
 }
 
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+/* Centrar el título en el encabezado del modal */
+.custom-modal .ant-modal-header {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    text-align: center;
+}
+
+/* Centrar el texto en el cuerpo del modal */
+.custom-modal .ant-modal-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+}
+
+/* Centrar los botones en el pie del modal */
+.custom-modal .ant-modal-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.custom-modal .ant-modal-body {
+    height: 10vh; /* Limita la altura del contenido */
+    overflow-y: auto; /* Agrega desplazamiento si el contenido es grande */
+}
+
+/* MODAL FORM */
+
+.custom-modal-form .ant-modal-body {
+    height: 500px; /* Limita la altura del contenido */
+    overflow-y: auto; /* Agrega desplazamiento si el contenido es grande */
+}
+
+.ant-form-item-control-input {
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(44, 50, 53, 0.2);
+    
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgb(173, 173, 173);
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(143, 143, 143);
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+.ant-form-item-explain {
+    max-width: 100%;
+    white-space: normal; /* Para evitar que el mensaje largo se corte */
 }
