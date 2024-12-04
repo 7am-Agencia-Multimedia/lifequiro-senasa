@@ -93,7 +93,7 @@ const FormReport = () => {
     return (
         <Modal
             title={<h5 className='text-3xl text-center'>Crear Reporte</h5>}
-            visible={visible}
+            open={visible}
             confirmLoading={true}
             onCancel={showModal}
             centered

@@ -37,7 +37,7 @@
 }
 
 .custom-modal .ant-modal-body {
-    height: 10vh; /* Limita la altura del contenido */
+    height: auto; /* Limita la altura del contenido */
     overflow-y: auto; /* Agrega desplazamiento si el contenido es grande */
 }
 

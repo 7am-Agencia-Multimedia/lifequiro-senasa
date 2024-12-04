@@ -14,7 +14,7 @@ export default async function POST(req, res) {
         })
         const date = new Date();
         date.setMonth(date.getMonth() + 2)
-        res.setHeader('Set-Cookie', serialize('auth-token', response?.data?.token, {
+        res.setHeader('Set-Cookie', serialize('auth-token', response?.data?.access_token, {
             path: "/",
             expires: date,
         }));

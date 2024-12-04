@@ -5,6 +5,7 @@ import { Button, Checkbox, Form, Input, Flex } from 'antd';
 import Image from 'next/image';
 import { StateAuthInterface, useAuthStore } from '@/store/useAuthStore';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 interface LoginFields {
     email: string;
@@ -17,7 +18,7 @@ const Login = () => {
     // };
 
     const setAuthenticated = useAuthStore((state: StateAuthInterface) => state.setAuthenticated);
-    //const router = useRouter();
+    const router = useRouter();
 
     async function onSubmit(data: LoginFields) {
         try {
@@ -29,10 +30,9 @@ const Login = () => {
                     password: data.password,
                 }
             });
-            //reset();
             setAuthenticated(res.data);
-            //toast.success('Iniciaste sesión correctamente');
-            //router.push('/admin/users');
+            router.push('/admin');
+            
         } catch (error) {
             //toast.error('Error al iniciar sesión');
         }
@@ -47,7 +47,7 @@ const Login = () => {
         <div className='flex flex-col justify-center items-center gap-10 px-5 w-full'>
             <div className='flex flex-col justify-center items-center w-full gap-10'>
                 <div className='relative w-full h-24'>
-                    <Image src={'/logo_color.png'} alt='Logo Lifequiro' fill className='object-contain' priority/>
+                    <Image src={'/logo_color.png'} alt='Logo Lifequiro' fill className='object-contain' priority />
                 </div>
                 <div className='flex flex-col gap-2 justify-center items-center'>
                     <p className='text-2xl md:text-3xl font-semibold text-center'>Acceda a su cuenta</p>
@@ -75,11 +75,11 @@ const Login = () => {
                             rules={[{ required: true, message: 'Introduzca su contraseña' }]}
                         >
                             <Input.Password
-                                placeholder="Password" 
+                                placeholder="Password"
                                 size='large'
                                 prefix={<LockOutlined />}
                                 type="password"
-                                iconRender={(visible) => (visible ? <EyeTwoTone/> : <EyeInvisibleOutlined/>)}
+                                iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                             />
                         </Form.Item>
                     </div>
