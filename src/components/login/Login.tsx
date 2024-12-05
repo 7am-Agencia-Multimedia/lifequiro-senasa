@@ -1,5 +1,6 @@
 
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import { EyeInvisibleOutlined, EyeTwoTone, LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Form, Input, Flex } from 'antd';
 import Image from 'next/image';
@@ -13,14 +14,17 @@ interface LoginFields {
 }
 const Login = () => {
 
+
     // const onFinish = (values: any) => {
     //     console.log('Received values of form: ', values);
     // };
 
     const setAuthenticated = useAuthStore((state: StateAuthInterface) => state.setAuthenticated);
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
     async function onSubmit(data: LoginFields) {
+        setLoading(true)
         try {
             const { data: res } = await axios.request({
                 url: '/api/user/login',
@@ -35,6 +39,8 @@ const Login = () => {
             
         } catch (error) {
             //toast.error('Error al iniciar sesión');
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -93,7 +99,7 @@ const Login = () => {
                 </Form.Item> */}
 
                     <Form.Item>
-                        <Button block type="primary" htmlType="submit" size='large' className='w-full'>
+                        <Button block type="primary" htmlType="submit" size='large' className='w-full' loading={loading}>
                             Inicia sesión
                         </Button>
                     </Form.Item>

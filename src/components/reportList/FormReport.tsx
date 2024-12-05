@@ -1,25 +1,10 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-
-import {
-    Button,
-    Cascader,
-    DatePicker,
-    Form,
-    Input,
-    InputNumber,
-    Mentions,
-    Select,
-    TreeSelect,
-    Segmented,
-    Modal,
-    Flex,
-    Switch
-} from 'antd';
+import React, { useState } from 'react'
+import { Button, DatePicker, Form, Input, InputNumber, Select, Modal, Switch } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
-import { CreateReportTypes } from '@/utils/types';
+import { CreateReportTypes, userData } from '@/utils/types';
 
 const { RangePicker } = DatePicker;
 
@@ -38,24 +23,36 @@ const baseStyle = {
     width: '100%',
 };
 
+type Props = {
+    modalForm: boolean,
+    showModalForm: () => void,
+    userData: userData | undefined,
+    clearModal: () => void,
+}
+
 const { Option } = Select;
-const FormReport = () => {
-    const [visible, setVisible] = useState(false);
+const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) => {
+
     const [isClient, setIsClient] = useState(false);
     const [doctorName, setDoctorName] = useState("Dr. Juan Pérez");
 
-    useEffect(() => {
-        setIsClient(true);
-        setVisible(true);
-    }, []);
-
-    const showModal = () => {
-        setVisible(!visible);
-    };
-
-    if (!isClient) {
-        return null; // No renderiza el modal en el SSR
-    }
+    // useEffect(() => {
+    //     async function handleGetUserList() {
+    //         try {
+    //             const { data: res } = await axios.request({
+    //                 method: 'GET',
+    //                 url: 'pierviceset',
+    //             });
+    //             setInitLoading(false);
+    //             setData(res.users);
+    //             setList(res.users);
+    //         } catch (error) {
+    //             console.error(error);
+    //             setInitLoading(false);
+    //         }
+    //     }
+    //     handleGetUserList();
+    //  }, []);
 
     const onSubmit = async (data: CreateReportTypes) => {
         //setLoading(true);
@@ -71,7 +68,7 @@ const FormReport = () => {
                     age: data.age,
                     phone: data.phone,
                     study_center: data.study_center,
-                    procedure_center: data.procedure_center, 
+                    procedure_center: data.procedure_center,
                     traffic_accident: data.traffic_accident,
                     diagnosis: data.diagnosis,
                     procedure_names: data.procedure_names,
@@ -93,23 +90,39 @@ const FormReport = () => {
     return (
         <Modal
             title={<h5 className='text-3xl text-center'>Crear Reporte</h5>}
-            open={visible}
+            open={modalForm}
             confirmLoading={true}
-            onCancel={showModal}
+            onCancel={clearModal}
             centered
             footer={null}
+            maskClosable={false}
             className="custom-modal-form"
         >
             <div className="modal-content max-w-5xl p-5">
-                <Form name='Create Report' style={{ width: '100%' }} className='flex flex-col gap-5 py-5' onFinish={onFinish} initialValues={{ doctorName }}>
-                    <div className='flex gap-5 w-full'>
+                <Form
+                    name='Create Report'
+                    style={{ width: '100%' }}
+                    className={`flex flex-col py-5 gap-5`}
+                    onFinish={onFinish}
+                    initialValues={{
+                        doctorName,
+                        code: userData?.id || '',
+                        affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : '',
+                        idCard: userData?.document_no || '-',
+                        social_security_number: userData?.social_id || '-',
+                        age: userData?.age || '',
+                        phone: userData?.phone || '',
+                        gender: userData?.gender || '',
+                    }}>
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
                             label="Nombre del médico"
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="doctorName"
-                            rules={[{ required: true, message: 'Ingrese el nombre del médico' }]}
+                            rules={[{ required: true }]}
                             style={baseStyle}
+                        //hasFeedback
                         >
                             <Input style={{ width: '100%' }} />
                         </Form.Item>
@@ -120,11 +133,12 @@ const FormReport = () => {
                             name="code"
                             rules={[{ required: true, message: 'Ingrese el código' }]}
                             style={baseStyle}
+                        //hasFeedback
                         >
                             <InputNumber style={{ width: '100%' }} />
                         </Form.Item>
                     </div>
-                    <div className='flex gap-5 w-full'>
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
                             label="Nombre del afiliado"
                             layout="vertical"
@@ -133,7 +147,7 @@ const FormReport = () => {
                             rules={[{ required: true, message: 'Ingrese el nombre del afiliado' }]}
                             style={baseStyle}
                         >
-                            <Input style={{ width: '100%' }} />
+                            <Input style={{ width: '100%' }} disabled />
                         </Form.Item>
                         <Form.Item
                             label="NSS"
@@ -143,10 +157,10 @@ const FormReport = () => {
                             rules={[{ required: true, message: 'Ingrese el NSS' }]}
                             style={baseStyle}
                         >
-                            <InputNumber style={{ width: '100%' }} />
+                            <InputNumber style={{ width: '100%' }} disabled />
                         </Form.Item>
                     </div>
-                    <div className='flex gap-5 w-full'>
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
                             label="Cédula"
                             layout="vertical"
@@ -155,7 +169,7 @@ const FormReport = () => {
                             rules={[{ required: true, message: 'Ingrese la cédula' }]}
                             style={baseStyle}
                         >
-                            <InputNumber style={{ width: '100%' }} />
+                            <InputNumber style={{ width: '100%' }} disabled />
                         </Form.Item>
                         <Form.Item
                             label="Edad"
@@ -165,22 +179,23 @@ const FormReport = () => {
                             rules={[{ required: true, message: 'Ingrese la edad' }]}
                             style={baseStyle}
                         >
-                            <InputNumber style={{ width: '100%' }} />
+                            <InputNumber style={{ width: '100%' }} disabled />
                         </Form.Item>
                     </div>
-                    <div className='flex gap-5 w-full'>
+                    {/* GENERO Y PHONE */}
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
-                            label="Seleccione opción"
+                            label="Sexo"
                             layout="vertical"
                             labelCol={{ span: 24 }}
-                            name="selectOption"
+                            name="gender"
                             rules={[{ required: true, message: 'Seleccione una opción' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }}>
-                                <Option value="demo1">Demo 1</Option>
-                                <Option value="demo2">Demo 2</Option>
-                                <Option value="demo3">Demo 3</Option>
+                            <Select style={{ width: '100%' }} disabled>
+                                <Option value="F">Femenino</Option>
+                                <Option value="M">Masculino</Option>
+                                {/* <Option value="demo3">Demo 3</Option> */}
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -189,15 +204,16 @@ const FormReport = () => {
                             labelCol={{ span: 24 }}
                             name="phone"
                             rules={[
-                                { required: true, message: 'Por favor ingresa tu número de teléfono' },
+                                { required: true, message: 'Por favor ingresa tu teléfono' },
                                 { pattern: /^[0-9]{10}$/, message: 'El número debe contener solo 10 dígitos' },
                             ]}
                             style={baseStyle}
                         >
-                            <Input type="tel" placeholder="Introduce tu número de teléfono" />
+                            <Input type="tel" placeholder="Introduce tu número de teléfono" disabled />
                         </Form.Item>
                     </div>
-                    <div className='flex justify-center items-center gap-5 w-full'>
+                    {/* SWITCH Y SELECT */}
+                    <div className='flex justify-center items-center gap-5 w-full h-20'>
                         <Form.Item
                             label="Accidente de tránsito?"
                             layout="vertical"
@@ -215,6 +231,7 @@ const FormReport = () => {
                             name="study_center"
                             rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
+                            className='pb-5'
                         >
                             <Select style={{ width: '100%' }}>
                                 <Option value="demo1">Demo 1</Option>
@@ -223,7 +240,8 @@ const FormReport = () => {
                             </Select>
                         </Form.Item>
                     </div>
-                    <div className='flex gap-5 w-full'>
+                    {/* ENFERMEDAD Y VARIANTE */}
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
                             label="Seleccione enfermedad"
                             layout="vertical"
@@ -253,6 +271,7 @@ const FormReport = () => {
                             </Select>
                         </Form.Item>
                     </div>
+                    {/* TEXT AREA */}
                     <div className='flex flex-col gap-20 w-full'>
                         <Form.Item
                             label="Procedimientos a seguir"
@@ -260,6 +279,7 @@ const FormReport = () => {
                             labelCol={{ span: 24 }}
                             name="procedure_names"
                             rules={[{ required: true, message: 'Ingrese los procedimientos a seguir' }]}
+                            className='min-h-12'
                         >
                             <TextArea rows={4} />
                         </Form.Item>
@@ -269,6 +289,7 @@ const FormReport = () => {
                             labelCol={{ span: 24 }}
                             name="current_disease_history"
                             rules={[{ required: true, message: 'Ingrese la historia de la enfermedad' }]}
+                            className='min-h-12'
                         >
                             <TextArea rows={4} />
                         </Form.Item>
@@ -278,17 +299,21 @@ const FormReport = () => {
                             labelCol={{ span: 24 }}
                             name="pathologicalHistory"
                             rules={[{ required: true, message: 'Ingrese el antecedente patológico' }]}
+                            className='min-h-12'
                         >
-                            <TextArea rows={4} />
+                            <TextArea rows={4} maxLength={100} showCount={true} />
                         </Form.Item>
+                        {/* BUTTON */}
+                        <div className='flex justify-center items-center w-full pt-5'>
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit" size='large' className='w-full'>
+                                    Crear Reporte
+                                </Button>
+                            </Form.Item>
+                        </div>
                     </div>
-                    <div className='flex justify-center items-center pt-20 w-full'>
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit" size='large' className='w-full'>
-                                Crear Reporte
-                            </Button>
-                        </Form.Item>
-                    </div>
+
+
                 </Form>
             </div>
         </Modal>

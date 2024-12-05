@@ -1,5 +1,6 @@
 'use client'
 
+import { userData } from '@/utils/types';
 import { UserOutlined } from '@ant-design/icons';
 import { Button, InputNumber, Modal } from 'antd';
 import axios from 'axios';
@@ -10,36 +11,15 @@ import React, { useState } from 'react'
 type Props = {
     showModal: () => void,
     visible: boolean,
+    idUser: number | undefined,
+    //handleModalCancel: () => void,
+    handleOk: () => void,
+    loading: boolean,
+    handleInputChange: (value: any) => void
+    errorSearchUser: boolean;
 }
-const SearchUser = ({ showModal, visible }: Props) => {
+const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInputChange, errorSearchUser}: Props) => {
 
-    const [idUser, setIdUser] = useState<number | undefined>(undefined);
-
-    const handleInputChange = (value: any) => {
-        setIdUser(value);
-    };
-
-    const handleModalCancel = () => {
-        setIdUser(undefined);  
-        showModal();
-    };
-
-    console.log(idUser) 
-
-
-    const handleOk = async () => {
-        try {
-            const { data: res } = await axios.request({
-                method: 'POST',
-                url: '/api/user/id',
-                withCredentials: true,
-                data: {paciente_id: idUser},
-            })
-            console.log(res)
-        } catch (error) {
-            console.error(error)
-        }
-    };
 
     return (
         <Modal
@@ -53,25 +33,27 @@ const SearchUser = ({ showModal, visible }: Props) => {
             open={visible}
             confirmLoading={true}
             //onOk={handleOk}
-            onCancel={handleModalCancel}
+            onCancel={showModal}
             centered
             footer={[
-                <Button key="cancel" onClick={handleModalCancel}>
+                <Button key="cancel" onClick={showModal}>
                     Cerrar
                 </Button>,
-                <Button key="button" type="primary" onClick={handleOk}>
+                <Button key="button" type="primary" onClick={handleOk} loading={loading}>
                     Confirmar
                 </Button>,
             ]}
             className="custom-modal"
         >
-            <div className="modal-content w-60 py-5">
-            <InputNumber
+            <div className="flex flex-col gap-2 modal-content w-60 py-5">
+                <InputNumber
                     addonBefore={<UserOutlined />}
                     style={{ width: '100%' }}
-                    value={idUser}  
+                    value={errorSearchUser ? null : idUser}
                     onChange={handleInputChange}
-            />
+                    
+                />
+                {errorSearchUser ? <p className='text-xs text-red-500'>No se encontró ningun paciente, <br/> vuelve a intentarlo.</p> : null}
             </div>
         </Modal>
     )

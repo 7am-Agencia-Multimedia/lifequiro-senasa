@@ -12,3 +12,17 @@ export type CreateReportTypes = {
     procedure_names: string,
     current_disease_history: string,
 }
+
+export type userData = {
+    id: number,
+    firstname: string,
+    lastname: string,
+    phone: string,
+    mobile: string,
+    office_id: number,
+    birthday: string,
+    gender: string,
+    document_no: string,
+    social_id: string,
+    age: number
+}
