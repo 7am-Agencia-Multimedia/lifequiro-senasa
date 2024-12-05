@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import {LikeOutlined,SnippetsOutlined} from '@ant-design/icons';
+import { LikeOutlined, SnippetsOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import Image from 'next/image';
@@ -28,8 +28,8 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-    getItem('Lista de reportes', '1', <SnippetsOutlined/>),
-    // getItem('Cerrar Sesion', '2', <SnippetsOutlined/>),
+    getItem('Lista de reportes', '1', <SnippetsOutlined />),
+    //getItem('Cerrar Sesion', '2', <SnippetsOutlined/>),
     //getItem('Test', '2', <LikeOutlined />),
     // Puedes agregar más opciones aquí
 ];
@@ -41,7 +41,7 @@ type Props = {
 const SideBar: React.FC<Props> = ({ children }) => {
 
     // AUTH
-    const resetAuth = useAuthStore((state:StateAuthInterface) => state.resetAuth)
+    const resetAuth = useAuthStore((state: StateAuthInterface) => state.resetAuth)
     const auth = useAuthStore();
     // const auth = {
     //     authenticated: true,
@@ -77,9 +77,9 @@ const SideBar: React.FC<Props> = ({ children }) => {
                 collapsible
                 collapsed={collapsed}
                 onCollapse={(value) => setCollapsed(value)}
-                width={250}  
-                collapsedWidth={80}  
-                className='py-10'
+                width={250}
+                collapsedWidth={80}
+                className='py-10 relative'
                 breakpoint={'md'}
             >
                 {/* <div className="demo-logo-vertical" /> */}
@@ -92,14 +92,14 @@ const SideBar: React.FC<Props> = ({ children }) => {
                         <Image src={'/logo_white.webp'} alt='Logo Lifequiro' fill className='object-contain px-5' />
                     </div>
                 )}
-                <div className='h-20 w-full' />
+                <div className='h-12 w-full' />
                 <Menu
                     theme="dark"
                     selectedKeys={[selectedKey]}
                     mode="inline"
                     items={items}
                     //onClick={handleMenuClick}
-                    className='px-3'
+                    className='flex flex-col h-96 px-3'
                 />
             </Sider>
             <Layout className='py-5'>
@@ -122,7 +122,7 @@ const SideBar: React.FC<Props> = ({ children }) => {
                 </Footer> */}
             </Layout>
         </Layout>
-    ): null
+    ) : null
 };
 
 export default SideBar;

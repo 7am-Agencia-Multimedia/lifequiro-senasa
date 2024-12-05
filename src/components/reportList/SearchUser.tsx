@@ -20,6 +20,13 @@ type Props = {
 }
 const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInputChange, errorSearchUser}: Props) => {
 
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            // Si se presiona Enter, ejecutamos el evento de clic del botón
+            handleOk();
+        }
+    };
+
 
     return (
         <Modal
@@ -51,7 +58,7 @@ const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInput
                     style={{ width: '100%' }}
                     value={errorSearchUser ? null : idUser}
                     onChange={handleInputChange}
-                    
+                    onKeyDown={handleKeyPress}
                 />
                 {errorSearchUser ? <p className='text-xs text-red-500'>No se encontró ningun paciente, <br/> vuelve a intentarlo.</p> : null}
             </div>

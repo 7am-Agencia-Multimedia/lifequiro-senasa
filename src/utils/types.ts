@@ -26,3 +26,22 @@ export type userData = {
     social_id: string,
     age: number
 }
+
+export interface Disease {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+    variants: Variant[];
+}
+
+export interface Variant {
+    id: number;
+    disease_id: number;
+    name: string;
+    description: string;
+    treatment: string;
+    created_at: string;
+    updated_at: string;
+}
+

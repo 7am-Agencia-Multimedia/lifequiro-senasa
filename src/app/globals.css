@@ -47,6 +47,9 @@
     height: 500px; /* Limita la altura del contenido */
     overflow-y: auto; /* Agrega desplazamiento si el contenido es grande */
 }
+.ant-modal-content {
+  width: 600px;
+}
 
 .ant-form-item-control-input {
     width: 100%;

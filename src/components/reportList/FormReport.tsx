@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, DatePicker, Form, Input, InputNumber, Select, Modal, Switch } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
-import { CreateReportTypes, userData } from '@/utils/types';
+import { CreateReportTypes, Disease, userData } from '@/utils/types';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const { RangePicker } = DatePicker;
 
@@ -35,24 +36,54 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
 
     const [isClient, setIsClient] = useState(false);
     const [doctorName, setDoctorName] = useState("Dr. Juan Pérez");
+    const [diseases, setDiseases] = useState<Disease[]>([]);
 
-    // useEffect(() => {
-    //     async function handleGetUserList() {
-    //         try {
-    //             const { data: res } = await axios.request({
-    //                 method: 'GET',
-    //                 url: 'pierviceset',
-    //             });
-    //             setInitLoading(false);
-    //             setData(res.users);
-    //             setList(res.users);
-    //         } catch (error) {
-    //             console.error(error);
-    //             setInitLoading(false);
-    //         }
-    //     }
-    //     handleGetUserList();
-    //  }, []);
+    const [selectedDisease, setSelectedDisease] = useState(null);
+    const [selectedVariant, setSelectedVariant] = useState(null);
+    const [treatment, setTreatment] = useState<string>('');
+    const [historyDisease, setHistoryDisease] = useState<string>('');
+    const [hasRun, setHasRun] = useState(false);
+
+
+    const handleDiseaseChange = (value: any) => {
+        setSelectedDisease(value);
+        setSelectedVariant(null);  // Resetear la variante al cambiar la enfermedad
+        setTreatment('');  // Resetear el tratamiento
+    };
+
+    const handleVariantChange = (value: any) => {
+        setSelectedVariant(value);
+        const selectedDiseaseObj = diseases.find(disease => disease.id === selectedDisease);
+        if (selectedDiseaseObj) {
+            const selectedVariantObj = selectedDiseaseObj.variants.find(variant => variant.id === value);
+            if (selectedVariantObj) {
+                setTreatment(selectedVariantObj.treatment);
+                setHistoryDisease(selectedVariantObj.description)
+                console.log("Tratamiento actualizado:", selectedVariantObj.description);  // Verifica si la descripción se está guardando
+            }
+        }
+    };
+
+    console.log(treatment);
+
+    useEffect(() => {
+        if (hasRun || !modalForm) return;
+        async function handleGetDiseasesList() {
+            try {
+                const { data: res } = await axios.request({
+                    method: 'GET',
+                    url: '/api/disease/getAll',
+                });
+                setDiseases(res.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        handleGetDiseasesList();
+        setHasRun(true);
+    }, [modalForm, hasRun]);
+
+    console.table(diseases);
 
     const onSubmit = async (data: CreateReportTypes) => {
         //setLoading(true);
@@ -62,7 +93,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                 method: 'POST',
                 data: {
                     code: data.code,
-                    affiliate_id: data.affiliate_id,
+                    affiliate_id: userData ? userData.id : '',
                     affiliate_name: data.affiliate_name,
                     social_security_number: data.social_security_number,
                     age: data.age,
@@ -105,7 +136,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                     className={`flex flex-col py-5 gap-5`}
                     onFinish={onFinish}
                     initialValues={{
-                        doctorName,
+                        //doctorName: auth,
                         code: userData?.id || '',
                         affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : '',
                         idCard: userData?.document_no || '-',
@@ -120,11 +151,14 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="doctorName"
-                            rules={[{ required: true }]}
+                            rules={[{ required: true, message: 'Seleccione un médico' }]}
                             style={baseStyle}
-                        //hasFeedback
                         >
-                            <Input style={{ width: '100%' }} />
+                            <Select style={{ width: '100%' }} placeholder={'Seleccione un médico'}>
+                                <Option value="doc1">médico 1</Option>
+                                <Option value="doc2">médico 2</Option>
+                                <Option value="doc3">médico 3</Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item
                             label="Código"
@@ -213,47 +247,62 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                         </Form.Item>
                     </div>
                     {/* SWITCH Y SELECT */}
-                    <div className='flex justify-center items-center gap-5 w-full h-20'>
+                    <div className='flex gap-5 w-full h-16'>
                         <Form.Item
-                            label="Accidente de tránsito?"
-                            layout="vertical"
-                            valuePropName="checked"
-                            name="traffic_accident"
-                            rules={[{ required: false, message: 'Indique si fue un accidente de tránsito' }]}
-                            style={baseStyle}
-                        >
-                            <Switch />
-                        </Form.Item>
-                        <Form.Item
-                            label="Centro"
+                            label="Centro de estudio"
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="study_center"
-                            rules={[{ required: true, message: 'Seleccione un centro' }]}
+                            rules={[{ required: true, message: 'Seleccione un centro' }] }
                             style={baseStyle}
-                            className='pb-5'
                         >
-                            <Select style={{ width: '100%' }}>
+                            <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
+                                <Option value="demo1">Demo 1</Option>
+                                <Option value="demo2">Demo 2</Option>
+                                <Option value="demo3">Demo 3</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item
+                            label="Centro de procedimiento"
+                            layout="vertical"
+                            labelCol={{ span: 24 }}
+                            name="procedure_center"
+                            rules={[{ required: true, message: 'Seleccione un centro' }] }
+                            style={baseStyle}
+                        >
+                            <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
                                 <Option value="demo1">Demo 1</Option>
                                 <Option value="demo2">Demo 2</Option>
                                 <Option value="demo3">Demo 3</Option>
                             </Select>
                         </Form.Item>
                     </div>
+                    <Form.Item
+                        label="Accidente de tránsito?"
+                        layout="vertical"
+                        valuePropName="checked"
+                        name="traffic_accident"
+                        rules={[{ required: false, message: 'Indique si fue un accidente de tránsito' }]}
+                        style={baseStyle}
+                    >
+                        <Switch />
+                    </Form.Item>
                     {/* ENFERMEDAD Y VARIANTE */}
                     <div className='flex gap-5 w-full h-16'>
                         <Form.Item
                             label="Seleccione enfermedad"
                             layout="vertical"
                             labelCol={{ span: 24 }}
-                            name="diagnosis"
+                            name="diseases"
                             rules={[{ required: true, message: 'Seleccione una enfermedad' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }}>
-                                <Option value="demo1">Demo 1</Option>
-                                <Option value="demo2">Demo 2</Option>
-                                <Option value="demo3">Demo 3</Option>
+                            <Select style={{ width: '100%' }} onChange={handleDiseaseChange} placeholder={'Seleccione una enfermedad'}>
+                                {diseases.map((value, id) => {
+                                    return (
+                                        <Option value={value.id} key={value.id}>{value.name}</Option>
+                                    )
+                                })}
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -264,44 +313,48 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                             rules={[{ required: true, message: 'Seleccione una variante' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }}>
-                                <Option value="demo1">Demo 1</Option>
-                                <Option value="demo2">Demo 2</Option>
-                                <Option value="demo3">Demo 3</Option>
+                            <Select style={{ width: '100%' }} onChange={handleVariantChange} placeholder={'Seleccione una variante'}>
+                                {diseases
+                                    .find(disease => disease.id === selectedDisease)
+                                    ?.variants?.map(variant => {
+                                        return (
+                                            <Option key={variant.id} value={variant.id}>
+                                                {variant.name}
+                                            </Option>
+                                        );
+                                    })}
                             </Select>
                         </Form.Item>
                     </div>
                     {/* TEXT AREA */}
-                    <div className='flex flex-col gap-20 w-full'>
-                        <Form.Item
-                            label="Procedimientos a seguir"
-                            layout="vertical"
-                            labelCol={{ span: 24 }}
-                            name="procedure_names"
-                            rules={[{ required: true, message: 'Ingrese los procedimientos a seguir' }]}
-                            className='min-h-12'
-                        >
-                            <TextArea rows={4} />
-                        </Form.Item>
-                        <Form.Item
-                            label="Historia de la enfermedad"
-                            layout="vertical"
-                            labelCol={{ span: 24 }}
-                            name="current_disease_history"
-                            rules={[{ required: true, message: 'Ingrese la historia de la enfermedad' }]}
-                            className='min-h-12'
-                        >
-                            <TextArea rows={4} />
-                        </Form.Item>
+                    <div className='flex flex-col gap-5 w-full'>
+                        <div className='flex flex-col gap-5'>
+                            <div className='flex flex-col gap-2'>
+                                <p>Procedimiento a seguir</p>
+                                <TextArea
+                                    rows={4}
+                                    value={treatment}
+                                    disabled
+                                />
+                            </div>
+                            <div className='flex flex-col gap-2'>
+                                <p>Historia de la enfermedad</p>
+                                <TextArea
+                                    rows={4}
+                                    value={historyDisease}
+                                    disabled
+                                />
+                            </div>
+                        </div>
                         <Form.Item
                             label="Antecedente patológico"
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="pathologicalHistory"
                             rules={[{ required: true, message: 'Ingrese el antecedente patológico' }]}
-                            className='min-h-12'
+                            className='min-h-28'
                         >
-                            <TextArea rows={4} maxLength={100} showCount={true} />
+                            <TextArea rows={4}/>
                         </Form.Item>
                         {/* BUTTON */}
                         <div className='flex justify-center items-center w-full pt-5'>
