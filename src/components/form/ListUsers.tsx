@@ -4,6 +4,7 @@ import { Table, Button, Modal } from 'antd';
 import type { SorterResult } from 'antd/es/table/interface';
 import { ReportUser } from '@/utils/types';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 type ColumnsType<T extends object = object> = TableProps<T>['columns'];
 type TablePaginationConfig = Exclude<GetProp<TableProps, 'pagination'>, boolean>;
@@ -35,6 +36,7 @@ const ListUsers: React.FC = () => {
     const [reportUsers, setReportUsers] = useState<ReportUser[]>([]);
     const [hasRun, setHasRun] = useState(false);
     const [selectedUser, setSelectedUser] = useState<ReportUser | null>(null);
+    const router = useRouter();
 
     // Trae la lista de usuarios con reporte desde la API
     useEffect(() => {
@@ -92,13 +94,14 @@ const ListUsers: React.FC = () => {
         try {
             const selectedReport = reportUsers.find(user => user.id === userId);
             if (selectedReport) {
-                setSelectedUser(selectedReport);
-                
+                //setSelectedUser(selectedReport);
+                router.push(`/admin/view-pdf-report/${userId}`);
             }
         } catch (error) {
             console.error('Error al obtener el reporte:', error);
         }
     };
+
 
     const handleCloseModal = () => {
         setSelectedUser(null);

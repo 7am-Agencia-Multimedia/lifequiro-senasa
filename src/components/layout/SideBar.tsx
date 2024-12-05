@@ -85,11 +85,11 @@ const SideBar: React.FC<Props> = ({ children }) => {
                 {/* <div className="demo-logo-vertical" /> */}
                 {collapsed ? (
                     <div className='relative w-full h-12'>
-                        <Image src={'/favicon.png'} alt='Logo Lifequiro' fill className='object-contain px-5' />
+                        <Image src={'/favicon.png'} alt='Logo Lifequiro' fill priority className='object-contain px-5 ' />
                     </div>
                 ) : (
                     <div className='relative w-full h-12'>
-                        <Image src={'/logo_white.webp'} alt='Logo Lifequiro' fill className='object-contain px-5' />
+                        <Image src={'/logo_white.webp'} alt='Logo Lifequiro' fill priority className='object-contain px-5' />
                     </div>
                 )}
                 <div className='h-12 w-full' />
