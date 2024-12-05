@@ -5,7 +5,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { Button, InputNumber, Modal } from 'antd';
 import axios from 'axios';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 
 type Props = {
@@ -20,12 +20,21 @@ type Props = {
 }
 const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInputChange, errorSearchUser}: Props) => {
 
+    const inputRef = useRef<any>(null);
+
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             // Si se presiona Enter, ejecutamos el evento de clic del botón
             handleOk();
         }
     };
+
+    // Enfocar el input cuando el modal se abre
+    useEffect(() => {
+        if (visible && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [visible]);
 
 
     return (
@@ -54,6 +63,7 @@ const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInput
         >
             <div className="flex flex-col gap-2 modal-content w-60 py-5">
                 <InputNumber
+                    ref={inputRef}
                     addonBefore={<UserOutlined />}
                     style={{ width: '100%' }}
                     value={errorSearchUser ? null : idUser}

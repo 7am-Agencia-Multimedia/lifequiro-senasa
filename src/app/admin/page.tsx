@@ -4,7 +4,7 @@ import ListUsers from '@/components/form/ListUsers'
 import SideBar from '@/components/layout/SideBar'
 import FormReport from '@/components/reportList/FormReport'
 import SearchUser from '@/components/reportList/SearchUser'
-import { userData } from '@/utils/types'
+import { Disease, userData } from '@/utils/types'
 import { UserOutlined } from '@ant-design/icons'
 import { Button, Divider, InputNumber, Modal } from 'antd'
 import axios from 'axios'
@@ -40,6 +40,28 @@ const PageAdmin = () => {
 
         return () => clearTimeout(timer);
     }, []);
+
+    //OBTENER ENFERMEDADES
+
+    const [diseases, setDiseases] = useState<Disease[]>([]);
+    const [hasRun, setHasRun] = useState(false);
+
+    useEffect(() => {
+        if (hasRun || !modalForm) return;
+        async function handleGetDiseasesList() {
+            try {
+                const { data: res } = await axios.request({
+                    method: 'GET',
+                    url: '/api/disease/getAll',
+                });
+                setDiseases(res.data.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        handleGetDiseasesList();
+        setHasRun(true);
+    }, [modalForm, hasRun]);
 
     // OBETENER ID DE USUARIO Y DATA USER 
 
@@ -78,6 +100,7 @@ const PageAdmin = () => {
     };
 
 
+
     return (
         isLoading ? (
             <div className="flex justify-center items-center h-screen">
@@ -108,6 +131,7 @@ const PageAdmin = () => {
                             showModalForm={showModalForm}
                             userData={userData}
                             clearModal={clearModal}
+                            diseases={diseases}
                         />
                     )}
                 </div>

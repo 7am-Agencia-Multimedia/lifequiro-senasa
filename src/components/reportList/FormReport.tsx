@@ -29,20 +29,19 @@ type Props = {
     showModalForm: () => void,
     userData: userData | undefined,
     clearModal: () => void,
+    diseases: Disease[],
 }
 
 const { Option } = Select;
-const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) => {
+const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}: Props) => {
 
     const [isClient, setIsClient] = useState(false);
     const [doctorName, setDoctorName] = useState("Dr. Juan Pérez");
-    const [diseases, setDiseases] = useState<Disease[]>([]);
 
     const [selectedDisease, setSelectedDisease] = useState(null);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [treatment, setTreatment] = useState<string>('');
     const [historyDisease, setHistoryDisease] = useState<string>('');
-    const [hasRun, setHasRun] = useState(false);
 
 
     const handleDiseaseChange = (value: any) => {
@@ -64,36 +63,17 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
         }
     };
 
-    console.log(treatment);
-
-    useEffect(() => {
-        if (hasRun || !modalForm) return;
-        async function handleGetDiseasesList() {
-            try {
-                const { data: res } = await axios.request({
-                    method: 'GET',
-                    url: '/api/disease/getAll',
-                });
-                setDiseases(res.data.data);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        handleGetDiseasesList();
-        setHasRun(true);
-    }, [modalForm, hasRun]);
-
-    console.table(diseases);
+    console.log(selectedVariant) 
 
     const onSubmit = async (data: CreateReportTypes) => {
         //setLoading(true);
         try {
             const { data: response } = await axios.request({
-                url: '/api/orders/calculatedCost',
+                url: '/api/report/create',
                 method: 'POST',
                 data: {
-                    code: data.code,
-                    affiliate_id: userData ? userData.id : '',
+                    code: 'report-6546754',
+                    affiliate_id: userData ? String(userData.id) : '',
                     affiliate_name: data.affiliate_name,
                     social_security_number: data.social_security_number,
                     age: data.age,
@@ -101,11 +81,15 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                     study_center: data.study_center,
                     procedure_center: data.procedure_center,
                     traffic_accident: data.traffic_accident,
+                    center_id: 1,
+                    disease_id: selectedDisease ? selectedDisease : '',
+                    disease_variant_id: selectedVariant ? selectedVariant : '',
+                    procedure_names: treatment,
+                    current_disease_history: historyDisease,
                     diagnosis: data.diagnosis,
-                    procedure_names: data.procedure_names,
-                    current_disease_history: data.current_disease_history,
                 },
             });
+            console.log('unexito:', response.data) 
         } catch (error) {
             console.log(error);
         } finally {
@@ -139,8 +123,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                         //doctorName: auth,
                         code: userData?.id || '',
                         affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : '',
-                        idCard: userData?.document_no || '-',
-                        social_security_number: userData?.social_id || '-',
+                        idCard: userData?.document_no || '0',
+                        social_security_number: userData?.social_id || '0',
                         age: userData?.age || '',
                         phone: userData?.phone || '',
                         gender: userData?.gender || '',
@@ -335,6 +319,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                                     rows={4}
                                     value={treatment}
                                     disabled
+                                    name='procedure_names'
                                 />
                             </div>
                             <div className='flex flex-col gap-2'>
@@ -350,7 +335,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal }: Props) =
                             label="Antecedente patológico"
                             layout="vertical"
                             labelCol={{ span: 24 }}
-                            name="pathologicalHistory"
+                            name="diagnosis"
                             rules={[{ required: true, message: 'Ingrese el antecedente patológico' }]}
                             className='min-h-28'
                         >

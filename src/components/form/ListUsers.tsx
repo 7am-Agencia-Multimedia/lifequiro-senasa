@@ -1,106 +1,174 @@
-'use client'
-
 import React, { useEffect, useState } from 'react';
-import { Avatar, Button, List, Skeleton } from 'antd';
+import type { GetProp, TableProps } from 'antd';
+import { Table, Button, Modal } from 'antd';
+import type { SorterResult } from 'antd/es/table/interface';
+import { ReportUser } from '@/utils/types';
+import axios from 'axios';
 
-// Importar el archivo JSON localmente
-import usersData from '@/utils/FakeUser.json';
+type ColumnsType<T extends object = object> = TableProps<T>['columns'];
+type TablePaginationConfig = Exclude<GetProp<TableProps, 'pagination'>, boolean>;
 
 interface DataType {
-    gender?: string;
-    name: {
-        first?: string;
-        last?: string;
-    };
-    email?: string;
-    picture: {
-        large?: string;
-    };
-    nat?: string;
-    loading: boolean;
+    id: number;
+    affiliate_name: string;
+    social_security_number: string;
+    phone: string;
 }
 
-const count = 3; 
+interface TableParams {
+    pagination?: TablePaginationConfig;
+    sortField?: SorterResult<any>['field'];
+    sortOrder?: SorterResult<any>['order'];
+    filters?: Parameters<GetProp<TableProps, 'onChange'>>[1];
+}
 
 const ListUsers: React.FC = () => {
-    const [initLoading, setInitLoading] = useState(false);
+    const [data, setData] = useState<DataType[]>([]);
     const [loading, setLoading] = useState(false);
-    const [data, setData] = useState<DataType[]>(usersData); // Usar directamente el archivo importado
-    const [list, setList] = useState<DataType[]>(data.slice(0, count)); // Usar los mismos datos de inicio para la lista
+    const [tableParams, setTableParams] = useState<TableParams>({
+        pagination: {
+            current: 1,
+            pageSize: 10,
+        },
+    });
 
-    // useEffect(() => {
-    //     async function handleGetUserList() {
-    //         try {
-    //             const { data: res } = await axios.request({
-    //                 method: 'GET',
-    //                 url: '/api/services/get',
-    //             });
-    //             setInitLoading(false);
-    //             setData(res.users);
-    //             setList(res.users);
-    //         } catch (error) {
-    //             console.error(error);
-    //             setInitLoading(false);
-    //         }
-    //     }
-    //     handleGetUserList();
-    // }, []);
+    const [reportUsers, setReportUsers] = useState<ReportUser[]>([]);
+    const [hasRun, setHasRun] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<ReportUser | null>(null);
 
-    const onLoadMore = () => {
-        setLoading(true);
-        setList(
-            data.concat([...new Array(count)].map(() => ({ loading: true, name: {}, picture: {} }))),
-        );
-        // Aquí, simplemente agregamos los mismos datos de nuevo para simular la carga de más usuarios
-        setTimeout(() => {
-            setLoading(false);
-            setList(data.slice(0, list.length + count));
-        }, 1000);
+    // Trae la lista de usuarios con reporte desde la API
+    useEffect(() => {
+        if (hasRun) return;
+        async function handleGetDiseasesList() {
+            try {
+                const { data: res } = await axios.request({
+                    method: 'GET',
+                    url: '/api/report/getAllReports',
+                });
+                setReportUsers(res.data);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        handleGetDiseasesList();
+        setHasRun(true);
+    }, [hasRun]);
+
+    // Transformar los datos de reportUsers a la estructura que espera la tabla
+    const transformData = (reportUsers: ReportUser[]): DataType[] => {
+        return reportUsers.map(user => ({
+            id: user.id,
+            affiliate_name: user.affiliate_name,
+            social_security_number: user.social_security_number,
+            phone: user.phone,
+        }));
     };
 
-    const loadMore =
-        !initLoading && !loading && list.length < data.length ? (
-            <div
-                style={{
-                    textAlign: 'center',
-                    marginTop: 12,
-                    height: 32,
-                    lineHeight: '32px',
-                }}
-            >
-                <Button onClick={onLoadMore}>Cargar más</Button>
-            </div>
-        ) : null;
+    // Cargar los datos cuando cambian los parámetros de la tabla
+    useEffect(() => {
+        if (reportUsers.length > 0) {
+            const { pageSize = 10, current = 1 } = tableParams.pagination || {};
+            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
+            setData(users);
+        }
+    }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
+
+    const handleTableChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter) => {
+        setTableParams({
+            pagination,
+            filters,
+            sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+            sortField: Array.isArray(sorter) ? undefined : sorter.field,
+        });
+
+        // Limpiar los datos cuando cambie el tamaño de la página
+        if (pagination.pageSize !== tableParams.pagination?.pageSize) {
+            setData([]);
+        }
+    };
+
+    // Maneja la visualización del reporte del usuario
+    const handleViewReport = async (userId: number) => {
+        try {
+            const selectedReport = reportUsers.find(user => user.id === userId);
+            if (selectedReport) {
+                setSelectedUser(selectedReport);
+                
+            }
+        } catch (error) {
+            console.error('Error al obtener el reporte:', error);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setSelectedUser(null);
+    };
+
+    const columns: ColumnsType<DataType> = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            sorter: true,
+            width: '5%',
+        },
+        {
+            title: 'Nombre del paciente',
+            dataIndex: 'affiliate_name',
+            width: '20%',
+        },
+        {
+            title: 'Número de seguridad social',
+            dataIndex: 'social_security_number',
+            width: '20%',
+        },
+        {
+            title: 'Número de teléfono',
+            dataIndex: 'phone',
+            width: '10%',
+        },
+        {
+            title: 'Acción',
+            key: 'action',
+            width: '10%',
+            render: (text, record) => (
+                <Button color="primary" variant="outlined" onClick={() => handleViewReport(record.id)}>Ver Reporte</Button>
+            ),
+        },
+    ];
 
     return (
-        <List
-            className="demo-loadmore-list"
-            loading={initLoading}
-            itemLayout="horizontal"
-            loadMore={loadMore}
-            dataSource={list}
-            // header={
-            // <div className='grid grid-cols-4'>
-            //     <p>A</p>
-            //     <p>b</p>
-            //     <p>c</p>
-            // </div>
-            // } 
-            renderItem={(item) => (
-                <List.Item
-                    actions={[<a key="list-loadmore-edit">editar</a>, <a key="list-loadmore-more">más</a>, <a key="list-loadmore-ads">más</a>]}
-                >
-                    <Skeleton avatar title={false} loading={item.loading} active>
-                        <List.Item.Meta
-                            avatar={<Avatar src={item.picture.large} />}
-                            title={<a href="https://ant.design">{item.name?.last}</a>}
-                            description={item.email}
-                        />
-                        <div>{item.nat}</div>
-                    </Skeleton>
-                </List.Item>
-            )}
-        />
+        <>
+            <Table<DataType>
+                columns={columns}
+                rowKey={(record) => record.id.toString()}
+                dataSource={data}
+                pagination={tableParams.pagination}
+                loading={loading}
+                onChange={handleTableChange}
+            />
+
+            <Modal
+                title="Detalles del Reporte"
+                open={!!selectedUser}
+                onCancel={handleCloseModal}
+                footer={null}
+                width={600}
+            >
+                {selectedUser ? (
+                    <div>
+                        <p><strong>Nombre del Paciente:</strong> {selectedUser.affiliate_name}</p>
+                        <p><strong>Edad:</strong> {selectedUser.age}</p>
+                        <p><strong>Centro de Estudio:</strong> {selectedUser.study_center}</p>
+                        <p><strong>Número de Seguridad Social:</strong> {selectedUser.social_security_number}</p>
+                        <p><strong>Accidente de Tráfico:</strong> {selectedUser.traffic_accident ? 'Sí' : 'No'}</p>
+                        <p><strong>Enfermedad:</strong> {selectedUser.disease.name}</p>
+                        {/* Aquí puedes mostrar más información relacionada con el reporte */}
+                    </div>
+                ) : (
+                    <p>Cargando...</p>
+                )}
+            </Modal>
+        </>
     );
 };
 

@@ -45,3 +45,39 @@ export interface Variant {
     updated_at: string;
 }
 
+// types.ts
+
+export interface Disease {
+    id: number;
+    name: string;
+}
+
+export interface DiseaseVariant {
+    id: number;
+    name: string;
+    description: string;
+    treatment: string;
+}
+
+export interface ReportUser {
+    id: number;
+    code: string;
+    affiliate_id: string;
+    affiliate_name: string;
+    social_security_number: string;
+    age: number;
+    phone: string;
+    study_center: string;
+    procedure_center: string;
+    traffic_accident: boolean;
+    procedure_names: string;
+    current_disease_history: string;
+    center_id: number;
+    disease_id: number;
+    disease_variant_id: number;
+    status: number;
+    created_at: string;
+    updated_at: string;
+    disease: Disease;
+    disease_variant: DiseaseVariant;
+}
