@@ -23,7 +23,12 @@ interface TableParams {
     filters?: Parameters<GetProp<TableProps, 'onChange'>>[1];
 }
 
-const ListUsers: React.FC = () => {
+type Props = {
+    lastReport: ReportUser | undefined;
+}
+
+const ListUsers: React.FC<Props> = ({lastReport}) => {
+
     const [data, setData] = useState<DataType[]>([]);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
@@ -55,6 +60,31 @@ const ListUsers: React.FC = () => {
         handleGetDiseasesList();
         setHasRun(true);
     }, [hasRun]);
+
+    console.log(reportUsers)
+
+    // Si lastReport tiene contenido, agregarlo a reportUsers
+    useEffect(() => {
+        if (lastReport) {
+            setReportUsers((prevReportUsers) => {
+                const updatedReportUsers = [...prevReportUsers, lastReport];
+                // Actualizar los datos de la tabla después de agregar el reporte
+                const { pageSize = 10, current = 1 } = tableParams.pagination || {};
+                const users = transformData(updatedReportUsers.slice((current - 1) * pageSize, current * pageSize));
+                setData(users);
+                return updatedReportUsers;
+            });
+        }
+    }, [lastReport]);
+
+    useEffect(() => {
+        if (reportUsers.length > 0) {
+            const { pageSize = 10, current = 1 } = tableParams.pagination || {};
+            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
+            setData(users);
+        }
+    }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
+    
 
     // Transformar los datos de reportUsers a la estructura que espera la tabla
     const transformData = (reportUsers: ReportUser[]): DataType[] => {

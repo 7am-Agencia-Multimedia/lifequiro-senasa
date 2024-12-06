@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button, DatePicker, Form, Input, InputNumber, Select, Modal, Switch } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
-import { CreateReportTypes, Disease, userData } from '@/utils/types';
+import { CreateReportTypes, Disease, ReportUser, userData } from '@/utils/types';
 import { useAuthStore } from '@/store/useAuthStore';
 
 const { RangePicker } = DatePicker;
@@ -30,10 +30,11 @@ type Props = {
     userData: userData | undefined,
     clearModal: () => void,
     diseases: Disease[],
+    setLastReport: React.Dispatch<React.SetStateAction<ReportUser | undefined>>;
 }
 
 const { Option } = Select;
-const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}: Props) => {
+const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases }: Props) => {
 
     const [isClient, setIsClient] = useState(false);
     const [doctorName, setDoctorName] = useState("Dr. Juan Pérez");
@@ -42,6 +43,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [treatment, setTreatment] = useState<string>('');
     const [historyDisease, setHistoryDisease] = useState<string>('');
+    const [loading, setLoading] = useState(false);
+
 
 
     const handleDiseaseChange = (value: any) => {
@@ -63,43 +66,45 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
         }
     };
 
-    console.log(selectedVariant) 
+    console.log(selectedVariant)
 
-    const onSubmit = async (data: CreateReportTypes) => {
-        //setLoading(true);
+    const onFinish = async (data: CreateReportTypes) => {
+        console.log('Received values of form: ', data);
+
+        if (!selectedDisease || !selectedVariant) {
+            // Maneja el error o alerta al usuario de que debe seleccionar ambos.
+            return;
+        }
+        setLoading(true)
         try {
             const { data: response } = await axios.request({
                 url: '/api/report/create',
                 method: 'POST',
                 data: {
-                    code: 'report-6546754',
-                    affiliate_id: userData ? String(userData.id) : '',
+                    code: "report-6546754",
+                    affiliate_id: userData ? userData.id.toString() : '',
                     affiliate_name: data.affiliate_name,
                     social_security_number: data.social_security_number,
                     age: data.age,
-                    phone: data.phone,
+                    phone: data.phone.toString(),
                     study_center: data.study_center,
                     procedure_center: data.procedure_center,
                     traffic_accident: data.traffic_accident,
                     center_id: 1,
-                    disease_id: selectedDisease ? selectedDisease : '',
-                    disease_variant_id: selectedVariant ? selectedVariant : '',
+                    disease_id: selectedDisease,
+                    disease_variant_id: selectedVariant,
                     procedure_names: treatment,
                     current_disease_history: historyDisease,
-                    diagnosis: data.diagnosis,
+                    //diagnosis: data.diagnosis,
                 },
             });
-            console.log('unexito:', response.data) 
+            console.log('unexito:', response.data)
         } catch (error) {
             console.log(error);
         } finally {
-            //setLoading(false);
+            setLoading(false);
+            showModalForm();
         }
-    };
-
-    const onFinish = (data: CreateReportTypes) => {
-        console.log('Received values of form: ', data);
-        onSubmit(data);
     };
 
     return (
@@ -121,13 +126,13 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
                     onFinish={onFinish}
                     initialValues={{
                         //doctorName: auth,
-                        code: userData?.id || '',
-                        affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : '',
-                        idCard: userData?.document_no || '0',
-                        social_security_number: userData?.social_id || '0',
-                        age: userData?.age || '',
-                        phone: userData?.phone || '',
-                        gender: userData?.gender || '',
+                        code: userData?.id || 'no-data',
+                        affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : 'no-data',
+                        idCard: userData?.document_no || "no-data",
+                        social_security_number: userData?.social_id || "no-data",
+                        age: userData?.age || 0,
+                        phone: userData?.phone || 1234567891,
+                        gender: userData?.gender || 'no-data',
                     }}>
                     <div className='flex gap-5 w-full h-16'>
                         <Form.Item
@@ -237,7 +242,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="study_center"
-                            rules={[{ required: true, message: 'Seleccione un centro' }] }
+                            rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
                             <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
@@ -251,7 +256,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
                             layout="vertical"
                             labelCol={{ span: 24 }}
                             name="procedure_center"
-                            rules={[{ required: true, message: 'Seleccione un centro' }] }
+                            rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
                             <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
@@ -339,12 +344,12 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases}:
                             rules={[{ required: true, message: 'Ingrese el antecedente patológico' }]}
                             className='min-h-28'
                         >
-                            <TextArea rows={4}/>
+                            <TextArea rows={4} />
                         </Form.Item>
                         {/* BUTTON */}
                         <div className='flex justify-center items-center w-full pt-5'>
                             <Form.Item>
-                                <Button type="primary" htmlType="submit" size='large' className='w-full'>
+                                <Button loading={loading} type="primary" htmlType="submit" size='large' className='w-full'>
                                     Crear Reporte
                                 </Button>
                             </Form.Item>

@@ -4,7 +4,7 @@ import ListUsers from '@/components/form/ListUsers'
 import SideBar from '@/components/layout/SideBar'
 import FormReport from '@/components/reportList/FormReport'
 import SearchUser from '@/components/reportList/SearchUser'
-import { Disease, userData } from '@/utils/types'
+import { Disease, ReportUser, userData } from '@/utils/types'
 import { UserOutlined } from '@ant-design/icons'
 import { Button, Divider, InputNumber, Modal } from 'antd'
 import axios from 'axios'
@@ -69,6 +69,7 @@ const PageAdmin = () => {
     const [userData, setUserData] = useState<userData>();
     const [loading, setLoading] = useState(false);
     const [errorSearchUser, setErrorSearchUser] = useState(false);
+    const [lastReport, setLastReport] = useState<ReportUser>();
 
     const handleInputChange = (value: number) => {
         setIdUser(value);
@@ -114,7 +115,9 @@ const PageAdmin = () => {
                             <Button type="primary" className='font-semibold w-fit' onClick={showModalUser}>+ Crear nuevo reporte</Button>
                         </div>
                     </div>
-                    <ListUsers />
+                    <ListUsers 
+                        lastReport={lastReport}
+                    />
                     <SearchUser
                         visible={modalIdUser}
                         showModal={showModalUser}
@@ -132,6 +135,7 @@ const PageAdmin = () => {
                             userData={userData}
                             clearModal={clearModal}
                             diseases={diseases}
+                            setLastReport={setLastReport}
                         />
                     )}
                 </div>

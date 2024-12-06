@@ -2,21 +2,19 @@ import axios from "axios";
 import { serialize } from "cookie";
 
 export default async function POST(req, res) {
-    const { data } = req.body;
+
+    // if (!code || !affiliate_id || !affiliate_name || !social_security_number || !age || !phone || !study_center || !procedure_center || !traffic_accident || !center_id || !disease_id || !disease_variant_id || !procedure_names || !current_disease_history) {
+    //     return res.status(400).json({ message: "Missing data in request body" });
+    // }
+
+    console.log(req.body)
+
     try {
         const { data: response } = await axios.request({
             url: `${process.env.SERVER_URL}/reports`,
             method: 'POST',
-            data: {
-                data
-            }
+            data: req.body,
         })
-        const date = new Date();
-        date.setMonth(date.getMonth() + 2)
-        res.setHeader('Set-Cookie', serialize('auth-token', response?.data?.access_token, {
-            path: "/",
-            expires: date,
-        }));
         res.status(200).json(response)
     } catch (error) {
         console.log(error.response)
