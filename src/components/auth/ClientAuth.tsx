@@ -16,7 +16,7 @@ export default function ClientAuth() {
                     url: '/api/user/profile',
                     withCredentials: true,
                 })
-                console.log(res)
+                //console.log(res)
                 setAuthenticated(res.data)
             } catch (error) {
                 resetAuth()

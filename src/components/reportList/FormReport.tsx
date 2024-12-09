@@ -31,7 +31,7 @@ type Props = {
     clearModal: () => void,
     diseases: Disease[],
     setLastReport: React.Dispatch<React.SetStateAction<ReportUser | undefined>>;
-    setSuccessReport:  React.Dispatch<React.SetStateAction<boolean>>;
+    setSuccessReport: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const { Option } = Select;
@@ -49,14 +49,14 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
     useEffect(() => {
         if (!modalForm) {
-            form.resetFields(); 
+            form.resetFields();
         }
     }, [modalForm, form]);
 
     const handleDiseaseChange = (value: any) => {
         setSelectedDisease(value);
-        setSelectedVariant(null);  
-        setTreatment(''); 
+        setSelectedVariant(null);
+        setTreatment('');
     };
 
     const handleVariantChange = (value: any) => {
@@ -116,7 +116,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
     return (
         <Modal
-            title={<h5 className='text-3xl text-center'>Crear Reporte</h5>}
+            title={<h5 className='text-3xl'>Crear Reporte</h5>}
             open={modalForm}
             confirmLoading={true}
             onCancel={clearModal}
@@ -354,7 +354,12 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             <TextArea rows={4} />
                         </Form.Item>
                         {/* BUTTON */}
-                        <div className='flex justify-center items-center w-full pt-5'>
+                        <div className='flex gap-5 pt-5'>
+
+                            <Button onClick={showModalForm} color="default" variant="filled" htmlType="button" size='large' className='w-fit'>
+                                Cancelar
+                            </Button>
+
                             <Form.Item>
                                 <Button loading={loading} type="primary" htmlType="submit" size='large' className='w-full'>
                                     Crear Reporte

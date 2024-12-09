@@ -11,7 +11,10 @@ import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-const PageAdmin = () => {
+type Props = {
+    status: 0 | 1;
+}
+const ListReports = ({status}: Props) => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [modalIdUser, setModalIdUser] = useState(false);
@@ -109,8 +112,41 @@ const PageAdmin = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
             </div>
         ) : (
-            <SideBar/>)
+                <div className='flex flex-col justify-center gap-5'>
+                    {status === 0 && 
+                    <div className='flex flex-col justify-center items-center h-full w-full'>
+                        <div className='w-full flex justify-end items-center'>
+                            <Button type="primary" className='font-semibold w-fit' onClick={showModalUser}>+ Crear nuevo reporte</Button>
+                        </div>
+                    </div>}
+                    <ListUsers 
+                        lastReport={lastReport}
+                        successReport={successReport}
+                        statusFiltered={status}
+                    />
+                    <SearchUser
+                        visible={modalIdUser}
+                        showModal={showModalUser}
+                        idUser={idUser}
+                        //handleModalCancel={handleModalCancel}
+                        handleOk={handleOk}
+                        loading={loading}
+                        handleInputChange={handleInputChange}
+                        errorSearchUser={errorSearchUser}
+                    />
+                    {userData && (
+                        <FormReport
+                            modalForm={modalForm}
+                            showModalForm={showModalForm}
+                            userData={userData}
+                            clearModal={clearModal}
+                            diseases={diseases}
+                            setLastReport={setLastReport}
+                            setSuccessReport={setSuccessReport}
+                        />
+                    )}
+                </div>)
     )
 }
 
-export default PageAdmin
+export default ListReports

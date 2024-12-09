@@ -19,10 +19,10 @@ export default function ReportPrintTemplate({ report, user }: Props) {
     //console.log() 
 
     return (
-        <div className={'flex flex-col w-[770px]'}>
+        <div className={'flex flex-col w-full'}>
             <div id="printOne" className={'flex flex-col gap-8 bg-white aspect-[1/1.414] h-full p-10 text-[.65rem] font-medium select-none'}>
                 <div className={'flex items-center justify-center gap-8'}>
-                    <Image src={'/senasa.png'} alt={'senasa'} width={45} height={50} />
+                    <Image src={'/senasa.png'} alt={'senasa'} width={45} height={50} priority/>
                     <div className={'flex flex-col divide-y'}>
                         <div className={'flex items-center border-black'}>
                             <span className={'font-bold w-14'}>Titulo</span>
@@ -124,7 +124,7 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                     </div>
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Historia de la enfermedad actual:</div>
-                        <div className={'p-1 h-80'}>
+                        <div className={'p-1 h-72'}>
                             {report?.current_disease_history}
                         </div>
                     </div>
@@ -165,7 +165,6 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                         <p className="font-bold py-1">Firma y sello del médico</p>
                     </div>
                 </div>
-
             </div>
         </div>
     )

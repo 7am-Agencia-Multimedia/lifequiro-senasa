@@ -101,13 +101,19 @@
     print-color-adjust:exact !important;
   }
   
-  /* #printOne {
-    page-break-after: always;  
+  #printOne {
+    width: 100%; /* Asegura que ocupe todo el ancho de la página */
+    height: auto; /* Ajusta la altura del contenido */
   }
 
   #printSecond {
-    page-break-before: always; 
-  } */
+    width: 100%; /* Asegura que ocupe todo el ancho de la página */
+    height: auto; /* Ajusta la altura del contenido */
+  }
+
+  .buttonIgnore {
+    display: none;
+  }
   
   img {
     visibility: visible !important; 

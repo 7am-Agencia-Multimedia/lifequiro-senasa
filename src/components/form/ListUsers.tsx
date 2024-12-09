@@ -27,9 +27,10 @@ interface TableParams {
 type Props = {
     lastReport: ReportUser | undefined;
     successReport: boolean;
+    statusFiltered: 0 | 1 ;
 }
 
-const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
+const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}) => {
     const [data, setData] = useState<DataType[]>([]);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
@@ -52,8 +53,10 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
                     method: 'GET',
                     url: '/api/report/getAllReports',
                 });
-                setReportUsers(res.data);
-                console.log(res.data);
+                // Filtrar los reportes para que solo se muestren los que tienen status = 0
+                const filteredReports = res.data.filter((report: ReportUser) => report.status === statusFiltered);
+                setReportUsers(filteredReports);
+                console.log(filteredReports);
             } catch (error) {
                 console.error(error);
             }
@@ -62,12 +65,12 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
         setHasRun(true);
     }, [hasRun, successReport, lastReport]);
 
-    // Si lastReport tiene contenido, agregarlo a reportUsers al principio
     useEffect(() => {
         if (lastReport) {
             setReportUsers((prevReportUsers) => {
-                const updatedReportUsers = [lastReport, ...prevReportUsers]; // Colocamos el último reporte al principio
-                // Actualizar los datos de la tabla después de agregar el reporte
+                const updatedReportUsers = [lastReport, ...prevReportUsers].filter(
+                    (report) => report.status === statusFiltered // Filtrar por status === 0
+                );
                 const { pageSize = 10, current = 1 } = tableParams.pagination || {};
                 const users = transformData(updatedReportUsers.slice((current - 1) * pageSize, current * pageSize));
                 setData(users);
@@ -76,17 +79,14 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
         }
     }, [lastReport]);
 
-    // Cargar los datos cuando cambian los parámetros de la tabla
     useEffect(() => {
         if (reportUsers.length > 0) {
             const { pageSize = 10, current = 1 } = tableParams.pagination || {};
-            // Mostrar los reportes en orden inverso, el más reciente primero
-            const users = transformData(reportUsers.slice().reverse().slice((current - 1) * pageSize, current * pageSize));
+            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
             setData(users);
         }
     }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
 
-    // Transformar los datos de reportUsers a la estructura que espera la tabla
     const transformData = (reportUsers: ReportUser[]): DataType[] => {
         return reportUsers.map(user => ({
             id: user.id,
@@ -105,18 +105,47 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
             sortField: Array.isArray(sorter) ? undefined : sorter.field,
         });
 
-        // Recargar los datos cuando cambie el tamaño de la página o la página
         const { current = 1, pageSize = 10 } = pagination ?? {};
-        const users = transformData(reportUsers.slice().reverse().slice((current - 1) * pageSize, current * pageSize));
+        let filteredUsers = [...reportUsers];
+
+        // Filtrar por affiliate_id si se aplica un filtro
+        if (filters?.affiliate_id && filters.affiliate_id.length) {
+            const affiliateIdFilter = filters.affiliate_id[0] as string;
+            filteredUsers = filteredUsers.filter(user =>
+                user.affiliate_id.includes(affiliateIdFilter)
+            );
+        }
+
+        const users = transformData(filteredUsers.slice((current - 1) * pageSize, current * pageSize));
         setData(users);
     };
 
-    // Maneja la visualización del reporte del usuario
     const handleViewReport = async (userId: number) => {
         try {
             const selectedReport = reportUsers.find(user => user.id === userId);
             if (selectedReport) {
-                router.push(`/admin/view-pdf-report/${userId}`);
+                const url = `/admin/view-pdf-report/${userId}`;
+                const a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank'; 
+                a.rel = 'noopener noreferrer'; 
+                a.click();
+            }
+        } catch (error) {
+            console.error('Error al obtener el reporte:', error);
+        }
+    };
+
+    const handlePrintReport = async (userId: number) => {
+        try {
+            const selectedReport = reportUsers.find(user => user.id === userId);
+            if (selectedReport) {
+                const url = `/admin/print-pdf-report/${userId}`;
+                const a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank'; 
+                a.rel = 'noopener noreferrer'; 
+                a.click();
             }
         } catch (error) {
             console.error('Error al obtener el reporte:', error);
@@ -129,10 +158,42 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
 
     const columns: ColumnsType<DataType> = [
         {
-            title: 'affiliate_id',
+            title: 'ID',
             dataIndex: 'affiliate_id',
-            sorter: true,
+            sorter: false,
             width: '5%',
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <input
+                        placeholder="Buscar por ID"
+                        value={selectedKeys[0] ? selectedKeys[0].toString() : ''}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        style={{ width: 188, marginBottom: 8, display: 'block' }}
+                        className='outline-none py-1 border rounded-lg px-2'
+                    />
+                    <div>
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                confirm();
+                                setTableParams({ ...tableParams, filters: { affiliate_id: selectedKeys } });
+                            }}
+                            icon="Buscar"
+                            size="small"
+                            style={{ width: 90, marginRight: 8 }}
+                        >
+                            
+                        </Button>
+                        <Button onClick={() => clearFilters?.()} size="small" style={{ width: 90 }}>
+                            Resetear
+                        </Button>
+
+                    </div>
+                </div>
+            ),
+            onFilter: (value, record) => {
+                return record.affiliate_id.includes(value as string);
+            },
         },
         {
             title: 'Nombre del paciente',
@@ -150,11 +211,19 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
             width: '10%',
         },
         {
-            title: 'Acción',
+            title: 'Reporte',
             key: 'action',
-            width: '10%',
+            width: '5%',
             render: (text, record) => (
-                <Button color="primary" variant="outlined" onClick={() => handleViewReport(record.id)}>Ver Reporte</Button>
+                <Button onClick={() => handleViewReport(record.id)}>Ver</Button>
+            ),
+        },
+        {
+            title: 'Impresión',
+            key: 'action',
+            width: '5%',
+            render: (text, record) => (
+                <Button color={statusFiltered === 0 ? "primary" : "danger"} variant="outlined" onClick={() => handlePrintReport(record.id)}><i className="fa-solid fa-print"></i></Button>
             ),
         },
     ];
@@ -172,7 +241,6 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
                 }}
                 loading={loading}
                 onChange={handleTableChange}
-                
             />
 
             <Modal
@@ -184,7 +252,6 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
             >
                 {selectedUser ? (
                     <div>
-                        {/* Mostrar detalles del reporte */}
                     </div>
                 ) : (
                     <p>Cargando...</p>

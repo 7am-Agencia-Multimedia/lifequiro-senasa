@@ -1,23 +1,24 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { LikeOutlined, LogoutOutlined, SnippetsOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import Image from 'next/image';
 import { StateAuthInterface, useAuthStore } from '@/store/useAuthStore';
 import { useLogout } from '@/hooks/useLogout';
 import { useRouter } from 'next/navigation';
+import ListReports from './ListReports';
+import PrintedReports from './PrintedReports';
+
 
 const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
 type Props = {
-    children: React.ReactNode,
 }
 
-const SideBar: React.FC<Props> = ({ children }) => {
+const SideBar: React.FC<Props> = () => {
     // AUTH
     const resetAuth = useAuthStore((state: StateAuthInterface) => state.resetAuth)
     const auth = useAuthStore();
@@ -52,8 +53,13 @@ const SideBar: React.FC<Props> = ({ children }) => {
         };
     }
 
+    const changeSelectedKey = (key:string) => {
+        setSelectedKey(key)
+    }
+
     const items: MenuItem[] = [
-        getItem('Lista de reportes', '1', <i className="fa-solid fa-print"></i>),
+        getItem('Lista de reportes', '1', <i className="fa-solid fa-file"></i>, () => changeSelectedKey('1')),
+        getItem('Reportes impresos', '2', <i className="fa-solid fa-print"></i>, () => changeSelectedKey('2')),
     ];
 
     const bottomItems: MenuItem[] = [
@@ -125,7 +131,11 @@ const SideBar: React.FC<Props> = ({ children }) => {
                             borderRadius: borderRadiusLG,
                         }}
                     >
-                        {children}
+                        {selectedKey === '1' ? (
+                            <ListReports status={0}/> 
+                        ) : (
+                            <PrintedReports status={1}/> 
+                        )} 
                     </div>
                 </Content>
             </Layout>
