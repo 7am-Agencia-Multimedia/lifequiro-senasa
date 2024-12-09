@@ -70,6 +70,7 @@ const PageAdmin = () => {
     const [loading, setLoading] = useState(false);
     const [errorSearchUser, setErrorSearchUser] = useState(false);
     const [lastReport, setLastReport] = useState<ReportUser>();
+    const [successReport, setSuccessReport] = useState(false);
 
     const handleInputChange = (value: number) => {
         setIdUser(value);
@@ -117,6 +118,7 @@ const PageAdmin = () => {
                     </div>
                     <ListUsers 
                         lastReport={lastReport}
+                        successReport={successReport}
                     />
                     <SearchUser
                         visible={modalIdUser}
@@ -136,6 +138,7 @@ const PageAdmin = () => {
                             clearModal={clearModal}
                             diseases={diseases}
                             setLastReport={setLastReport}
+                            setSuccessReport={setSuccessReport}
                         />
                     )}
                 </div>

@@ -31,26 +31,32 @@ type Props = {
     clearModal: () => void,
     diseases: Disease[],
     setLastReport: React.Dispatch<React.SetStateAction<ReportUser | undefined>>;
+    setSuccessReport:  React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const { Option } = Select;
-const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases }: Props) => {
+const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, setLastReport, setSuccessReport }: Props) => {
 
     const [isClient, setIsClient] = useState(false);
     const [doctorName, setDoctorName] = useState("Dr. Juan Pérez");
 
+    const [form] = Form.useForm();
     const [selectedDisease, setSelectedDisease] = useState(null);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [treatment, setTreatment] = useState<string>('');
     const [historyDisease, setHistoryDisease] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
-
+    useEffect(() => {
+        if (!modalForm) {
+            form.resetFields(); 
+        }
+    }, [modalForm, form]);
 
     const handleDiseaseChange = (value: any) => {
         setSelectedDisease(value);
-        setSelectedVariant(null);  // Resetear la variante al cambiar la enfermedad
-        setTreatment('');  // Resetear el tratamiento
+        setSelectedVariant(null);  
+        setTreatment(''); 
     };
 
     const handleVariantChange = (value: any) => {
@@ -65,8 +71,6 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases }
             }
         }
     };
-
-    console.log(selectedVariant)
 
     const onFinish = async (data: CreateReportTypes) => {
         console.log('Received values of form: ', data);
@@ -99,11 +103,14 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases }
                 },
             });
             console.log('unexito:', response.data)
+            setLastReport(response.data)
+            setSuccessReport(true)
         } catch (error) {
             console.log(error);
         } finally {
             setLoading(false);
             showModalForm();
+            setSuccessReport(false)
         }
     };
 

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { LikeOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { LikeOutlined, LogoutOutlined, SnippetsOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, theme } from 'antd';
 import Image from 'next/image';
@@ -13,46 +13,52 @@ const { Header, Content, Footer, Sider } = Layout;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-function getItem(
-    label: React.ReactNode,
-    key: React.Key,
-    icon?: React.ReactNode,
-    children?: MenuItem[],
-): MenuItem {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    } as MenuItem;
-}
-
-const items: MenuItem[] = [
-    getItem('Lista de reportes', '1', <SnippetsOutlined />),
-    //getItem('Cerrar Sesion', '2', <SnippetsOutlined/>),
-    //getItem('Test', '2', <LikeOutlined />),
-    // Puedes agregar más opciones aquí
-];
-
 type Props = {
     children: React.ReactNode,
 }
 
 const SideBar: React.FC<Props> = ({ children }) => {
-
     // AUTH
     const resetAuth = useAuthStore((state: StateAuthInterface) => state.resetAuth)
     const auth = useAuthStore();
-    // const auth = {
-    //     authenticated: true,
-    //     loading: false
-    // }
     const router = useRouter();
-
     const logout = useLogout(resetAuth);
     const handleLogout = () => {
         logout();
     };
+
+    function getItem(
+        label: React.ReactNode,
+        key: React.Key,
+        icon?: React.ReactNode,
+        onClick?: () => void,
+        children?: MenuItem[],
+    ): MenuItem {
+        if (key === '2' && !auth.authenticated) {
+            return {
+                key,
+                icon,
+                children,
+                label,
+                disabled: true,
+            };
+        }
+        return {
+            key,
+            icon,
+            children,
+            label,
+            onClick,
+        };
+    }
+
+    const items: MenuItem[] = [
+        getItem('Lista de reportes', '1', <i className="fa-solid fa-print"></i>),
+    ];
+
+    const bottomItems: MenuItem[] = [
+        getItem('Cerrar Sesión', '2',  <i className="fa-solid fa-left-from-bracket"></i>, handleLogout),
+    ];
 
     useEffect(() => {
         const checkAuth = () => {
@@ -64,9 +70,8 @@ const SideBar: React.FC<Props> = ({ children }) => {
     }, [auth.loading, auth.authenticated])
 
     // SIDEBAR
-
     const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState<string>('1');  // Estado para la opción seleccionada
+    const [selectedKey, setSelectedKey] = useState<string>('1');
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
@@ -82,7 +87,6 @@ const SideBar: React.FC<Props> = ({ children }) => {
                 className='py-10 relative'
                 breakpoint={'md'}
             >
-                {/* <div className="demo-logo-vertical" /> */}
                 {collapsed ? (
                     <div className='relative w-full h-12'>
                         <Image src={'/favicon.png'} alt='Logo Lifequiro' fill priority className='object-contain px-5 ' />
@@ -93,17 +97,24 @@ const SideBar: React.FC<Props> = ({ children }) => {
                     </div>
                 )}
                 <div className='h-12 w-full' />
-                <Menu
-                    theme="dark"
-                    selectedKeys={[selectedKey]}
-                    mode="inline"
-                    items={items}
-                    //onClick={handleMenuClick}
-                    className='flex flex-col h-96 px-3'
-                />
+                <div className='flex flex-col justify-between h-[calc(100vh-12rem)]'>
+                    <Menu
+                        theme="dark"
+                        selectedKeys={[selectedKey]}
+                        mode="inline"
+                        items={items}
+                        className='flex flex-col px-3'
+                    />
+
+                    <Menu
+                        theme="dark"
+                        mode="inline"
+                        items={bottomItems}
+                        className='flex flex-col px-3'
+                    />
+                </div>
             </Sider>
             <Layout className='py-5'>
-                {/* <Header style={{ padding: 0, background: colorBgContainer }} /> */}
                 <Content style={{ margin: '0 16px' }}>
                     <div
                         className='h-full'
@@ -117,12 +128,9 @@ const SideBar: React.FC<Props> = ({ children }) => {
                         {children}
                     </div>
                 </Content>
-                {/* <Footer style={{ textAlign: 'center' }} />
-                    Ant Design ©{new Date().getFullYear()} Created by Ant UED
-                </Footer> */}
             </Layout>
         </Layout>
-    ) : null
+    ) : null;
 };
 
 export default SideBar;

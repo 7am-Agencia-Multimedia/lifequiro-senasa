@@ -11,6 +11,7 @@ type TablePaginationConfig = Exclude<GetProp<TableProps, 'pagination'>, boolean>
 
 interface DataType {
     id: number;
+    affiliate_id: string;
     affiliate_name: string;
     social_security_number: string;
     phone: string;
@@ -25,10 +26,10 @@ interface TableParams {
 
 type Props = {
     lastReport: ReportUser | undefined;
+    successReport: boolean;
 }
 
-const ListUsers: React.FC<Props> = ({lastReport}) => {
-
+const ListUsers: React.FC<Props> = ({ lastReport, successReport }) => {
     const [data, setData] = useState<DataType[]>([]);
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
@@ -43,7 +44,6 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
     const [selectedUser, setSelectedUser] = useState<ReportUser | null>(null);
     const router = useRouter();
 
-    // Trae la lista de usuarios con reporte desde la API
     useEffect(() => {
         if (hasRun) return;
         async function handleGetDiseasesList() {
@@ -53,21 +53,20 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
                     url: '/api/report/getAllReports',
                 });
                 setReportUsers(res.data);
+                console.log(res.data);
             } catch (error) {
                 console.error(error);
             }
         }
         handleGetDiseasesList();
         setHasRun(true);
-    }, [hasRun]);
+    }, [hasRun, successReport, lastReport]);
 
-    console.log(reportUsers)
-
-    // Si lastReport tiene contenido, agregarlo a reportUsers
+    // Si lastReport tiene contenido, agregarlo a reportUsers al principio
     useEffect(() => {
         if (lastReport) {
             setReportUsers((prevReportUsers) => {
-                const updatedReportUsers = [...prevReportUsers, lastReport];
+                const updatedReportUsers = [lastReport, ...prevReportUsers]; // Colocamos el último reporte al principio
                 // Actualizar los datos de la tabla después de agregar el reporte
                 const { pageSize = 10, current = 1 } = tableParams.pagination || {};
                 const users = transformData(updatedReportUsers.slice((current - 1) * pageSize, current * pageSize));
@@ -77,33 +76,26 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
         }
     }, [lastReport]);
 
+    // Cargar los datos cuando cambian los parámetros de la tabla
     useEffect(() => {
         if (reportUsers.length > 0) {
             const { pageSize = 10, current = 1 } = tableParams.pagination || {};
-            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
+            // Mostrar los reportes en orden inverso, el más reciente primero
+            const users = transformData(reportUsers.slice().reverse().slice((current - 1) * pageSize, current * pageSize));
             setData(users);
         }
     }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
-    
 
     // Transformar los datos de reportUsers a la estructura que espera la tabla
     const transformData = (reportUsers: ReportUser[]): DataType[] => {
         return reportUsers.map(user => ({
             id: user.id,
+            affiliate_id: user.affiliate_id,
             affiliate_name: user.affiliate_name,
             social_security_number: user.social_security_number,
             phone: user.phone,
         }));
     };
-
-    // Cargar los datos cuando cambian los parámetros de la tabla
-    useEffect(() => {
-        if (reportUsers.length > 0) {
-            const { pageSize = 10, current = 1 } = tableParams.pagination || {};
-            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
-            setData(users);
-        }
-    }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
 
     const handleTableChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter) => {
         setTableParams({
@@ -113,10 +105,10 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
             sortField: Array.isArray(sorter) ? undefined : sorter.field,
         });
 
-        // Limpiar los datos cuando cambie el tamaño de la página
-        if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-            setData([]);
-        }
+        // Recargar los datos cuando cambie el tamaño de la página o la página
+        const { current = 1, pageSize = 10 } = pagination ?? {};
+        const users = transformData(reportUsers.slice().reverse().slice((current - 1) * pageSize, current * pageSize));
+        setData(users);
     };
 
     // Maneja la visualización del reporte del usuario
@@ -124,7 +116,6 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
         try {
             const selectedReport = reportUsers.find(user => user.id === userId);
             if (selectedReport) {
-                //setSelectedUser(selectedReport);
                 router.push(`/admin/view-pdf-report/${userId}`);
             }
         } catch (error) {
@@ -132,15 +123,14 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
         }
     };
 
-
     const handleCloseModal = () => {
         setSelectedUser(null);
     };
 
     const columns: ColumnsType<DataType> = [
         {
-            title: 'ID',
-            dataIndex: 'id',
+            title: 'affiliate_id',
+            dataIndex: 'affiliate_id',
             sorter: true,
             width: '5%',
         },
@@ -175,9 +165,14 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
                 columns={columns}
                 rowKey={(record) => record.id.toString()}
                 dataSource={data}
-                pagination={tableParams.pagination}
+                pagination={{
+                    current: tableParams.pagination?.current ?? 1,
+                    pageSize: tableParams.pagination?.pageSize ?? 10,
+                    total: reportUsers.length,
+                }}
                 loading={loading}
                 onChange={handleTableChange}
+                
             />
 
             <Modal
@@ -189,13 +184,7 @@ const ListUsers: React.FC<Props> = ({lastReport}) => {
             >
                 {selectedUser ? (
                     <div>
-                        <p><strong>Nombre del Paciente:</strong> {selectedUser.affiliate_name}</p>
-                        <p><strong>Edad:</strong> {selectedUser.age}</p>
-                        <p><strong>Centro de Estudio:</strong> {selectedUser.study_center}</p>
-                        <p><strong>Número de Seguridad Social:</strong> {selectedUser.social_security_number}</p>
-                        <p><strong>Accidente de Tráfico:</strong> {selectedUser.traffic_accident ? 'Sí' : 'No'}</p>
-                        <p><strong>Enfermedad:</strong> {selectedUser.disease.name}</p>
-                        {/* Aquí puedes mostrar más información relacionada con el reporte */}
+                        {/* Mostrar detalles del reporte */}
                     </div>
                 ) : (
                     <p>Cargando...</p>

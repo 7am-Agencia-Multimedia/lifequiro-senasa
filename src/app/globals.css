@@ -90,16 +90,32 @@
     white-space: normal;
 }
 
-
 @media print {
 
   * {
     margin: 0;
     padding: 0;
   }
+  body{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  
+  /* #printOne {
+    page-break-after: always;  
+  }
+
+  #printSecond {
+    page-break-before: always; 
+  } */
   
   img {
     visibility: visible !important; 
   }
   
+}
+
+@page {
+  size: A4;
+  margin: 10mm;
 }
