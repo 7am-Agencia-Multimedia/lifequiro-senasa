@@ -96,20 +96,6 @@
   * {
     margin: 0;
     padding: 0;
-    
-  }
-
-  body{
-    -webkit-print-color-adjust:exact !important;
-    print-color-adjust:exact !important;
-  }
-  
-  #printOne {
-    page-break-after: always;  /* Después de este div, comienza una nueva página */
-  }
-
-  #printSecond {
-    page-break-before: always; /* Antes de este div, comienza una nueva página */
   }
   
   img {
