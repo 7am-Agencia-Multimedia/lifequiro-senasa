@@ -1,7 +1,12 @@
 import Image from "next/image";
 
 export default function ReportPrintTemplate({ page }: { page: number }) {
-    return page === 1 ? <Page1/> : <Page2/>;
+    return (
+        <div className={'flex flex-col h-screen overflow-auto'}>
+            <Page1 />
+            <Page2 />
+        </div>
+    );
 }
 
 function Page1() {

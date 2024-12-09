@@ -44,7 +44,8 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
         ) : (
             <div className="relative w-full h-screen overflow-hidden flex flex-col justify-center items-center bg-gray-200">
                 {/* Contenedor de la imagen */}
-                <div className={'relative h-full'}>
+                <ReportPrintTemplate page={page} />
+                {/* <div className={'relative h-full'}>
                     <button 
                         className={'absolute top-1/2 -translate-y-1/2 -left-11 disabled:text-neutral-400 text-2xl'} 
                         disabled={page === 1}
@@ -52,7 +53,6 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
                     > 
                         <LeftOutlined  />
                     </button>
-                    <ReportPrintTemplate page={page} />
                     <button 
                         className={'absolute top-1/2 -translate-y-1/2 -right-11 disabled:text-neutral-400 text-2xl'} 
                         disabled={page === 2}
@@ -60,17 +60,17 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
                     >
                         <RightOutlined  />
                     </button>
-                </div>
+                </div> */}
 
                 {/* Botón para descargar PDF */}
-                <div className="absolute bottom-5 flex gap-4">
+                {/* <div className="absolute bottom-5 flex gap-4">
                     <button
                         onClick={downloadPDF}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                     >
                         Descargar como PDF
                     </button>
-                </div>
+                </div> */}
             </div>
         )
     );
