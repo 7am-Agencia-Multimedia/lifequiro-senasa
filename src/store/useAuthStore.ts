@@ -3,8 +3,8 @@ import { create } from 'zustand'
 export interface StateAuthInterface {
     _id: string;
     email: string;
-    name:string;
-    phone_number:string;
+    name: string;
+    phone_number: string;
     authenticated: boolean;
     loading: boolean;
     setAuthenticated: (user: Partial<Omit<StateAuthInterface, 'authenticated' | 'loading'>>) => void;
@@ -15,10 +15,18 @@ export interface StateAuthInterface {
 export const useAuthStore = create<StateAuthInterface>((set) => ({
     _id: '',
     email: '',
-    name:'',
-    phone_number:'',
+    name: '',
+    phone_number: '',
     authenticated: false,
     loading: true,
     setAuthenticated: (user) => set((state) => ({ ...state, ...user, authenticated: true, loading: false })),
-    resetAuth: () => set((state) => ({ ...state, token: '', authenticated: false, loading: false })),
+    resetAuth: () => set((state) => ({
+        _id: '',
+        email: '',
+        name: '',
+        phone_number: '',
+        token: '',
+        authenticated: false,
+        loading: false
+    })),
 }))

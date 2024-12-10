@@ -5,12 +5,14 @@ import type { SorterResult } from 'antd/es/table/interface';
 import { ReportUser } from '@/utils/types';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 type ColumnsType<T extends object = object> = TableProps<T>['columns'];
 type TablePaginationConfig = Exclude<GetProp<TableProps, 'pagination'>, boolean>;
 
 interface DataType {
     id: number;
+    created_at:string;
     affiliate_id: string;
     affiliate_name: string;
     social_security_number: string;
@@ -42,6 +44,7 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
 
     const [reportUsers, setReportUsers] = useState<ReportUser[]>([]);
     const [hasRun, setHasRun] = useState(false);
+    const [changeStatus, setChangeStatus] = useState(false);
     const [selectedUser, setSelectedUser] = useState<ReportUser | null>(null);
     const router = useRouter();
 
@@ -55,15 +58,21 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
                 });
                 // Filtrar los reportes para que solo se muestren los que tienen status = 0
                 const filteredReports = res.data.filter((report: ReportUser) => report.status === statusFiltered);
-                setReportUsers(filteredReports);
-                console.log(filteredReports);
+    
+                // Ordenar por fecha de creación (más reciente primero)
+                const sortedReports = filteredReports.sort((a: ReportUser, b: ReportUser) => {
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); 
+                });
+    
+                setReportUsers(sortedReports);
+                console.log(sortedReports);
             } catch (error) {
                 console.error(error);
             }
         }
         handleGetDiseasesList();
         setHasRun(true);
-    }, [hasRun, successReport, lastReport]);
+    }, [hasRun, successReport, lastReport, changeStatus]);
 
     useEffect(() => {
         if (lastReport) {
@@ -71,10 +80,15 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
                 const updatedReportUsers = [lastReport, ...prevReportUsers].filter(
                     (report) => report.status === statusFiltered // Filtrar por status === 0
                 );
+                // Ordenar por fecha de creación (más reciente primero)
+                const sortedUpdatedReportUsers = updatedReportUsers.sort((a, b) => {
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                });
+    
                 const { pageSize = 10, current = 1 } = tableParams.pagination || {};
-                const users = transformData(updatedReportUsers.slice((current - 1) * pageSize, current * pageSize));
+                const users = transformData(sortedUpdatedReportUsers.slice((current - 1) * pageSize, current * pageSize));
                 setData(users);
-                return updatedReportUsers;
+                return sortedUpdatedReportUsers;
             });
         }
     }, [lastReport]);
@@ -82,19 +96,33 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
     useEffect(() => {
         if (reportUsers.length > 0) {
             const { pageSize = 10, current = 1 } = tableParams.pagination || {};
-            const users = transformData(reportUsers.slice((current - 1) * pageSize, current * pageSize));
+            const sortedReportUsers = reportUsers
+                .filter((report) => report.status === statusFiltered)
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
+            const users = transformData(sortedReportUsers.slice((current - 1) * pageSize, current * pageSize));
             setData(users);
         }
-    }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize]);
+    }, [reportUsers, tableParams.pagination?.current, tableParams.pagination?.pageSize, statusFiltered]);
+    
 
     const transformData = (reportUsers: ReportUser[]): DataType[] => {
-        return reportUsers.map(user => ({
-            id: user.id,
-            affiliate_id: user.affiliate_id,
-            affiliate_name: user.affiliate_name,
-            social_security_number: user.social_security_number,
-            phone: user.phone,
-        }));
+        return reportUsers.map(user => {
+            const date = new Date(user.created_at);
+            const day = String(date.getDate()).padStart(2, '0'); 
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const formattedDate = `${day}/${month}/${year}`;
+    
+            return {
+                id: user.id,
+                created_at: formattedDate,
+                affiliate_id: user.affiliate_id,
+                affiliate_name: user.affiliate_name,
+                social_security_number: user.social_security_number,
+                phone: user.phone,
+            };
+        });
     };
 
     const handleTableChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter) => {
@@ -152,6 +180,34 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
         }
     };
 
+    const handleChangeStatus = async (userId: number) => {
+        setChangeStatus(true);
+        try {
+            const { data: res } = await axios.request({
+                url: '/api/report/status',
+                method: 'PATCH',
+                data: {
+                    id: userId,
+                    status: 1,  
+                }
+            });
+            if (res.success) {
+                setReportUsers(prevReportUsers => {
+                    return prevReportUsers.map(report => 
+                        report.id === userId 
+                        ? { ...report, status: 1 } 
+                        : report
+                    );
+                });
+                toast.success('Reporte impreso');
+            }
+        } catch (error) {
+            toast.error('Error al cambiar el estado del reporte');
+        } finally {
+            setChangeStatus(false);
+        }
+    };
+
     const handleCloseModal = () => {
         setSelectedUser(null);
     };
@@ -196,36 +252,58 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
             },
         },
         {
+            title: 'Creado',
+            dataIndex: 'created_at',
+            width: '5%',
+        },
+        {
             title: 'Nombre del paciente',
             dataIndex: 'affiliate_name',
-            width: '20%',
-        },
-        {
-            title: 'Número de seguridad social',
-            dataIndex: 'social_security_number',
-            width: '20%',
-        },
-        {
-            title: 'Número de teléfono',
-            dataIndex: 'phone',
             width: '10%',
         },
         {
-            title: 'Reporte',
-            key: 'action',
+            title: 'NSS',
+            dataIndex: 'social_security_number',
             width: '5%',
+        },
+        {
+            title: 'Teléfono',
+            dataIndex: 'phone',
+            width: '5%',
+        },
+        {
+            title: '',
+            dataIndex: '',
+            width: '10%',
+        },
+        {
+            title: '',
+            key: 'action',
+            width: '1%',
             render: (text, record) => (
                 <Button onClick={() => handleViewReport(record.id)}>Ver</Button>
             ),
         },
         {
-            title: 'Impresión',
+            title: '',
             key: 'action',
-            width: '5%',
+            width: '1%',
             render: (text, record) => (
                 <Button color={statusFiltered === 0 ? "primary" : "danger"} variant="outlined" onClick={() => handlePrintReport(record.id)}><i className="fa-solid fa-print"></i></Button>
             ),
         },
+        ...(statusFiltered === 0 ? [
+            {
+                title: '',
+                key: 'action',
+                width: '1%',
+                render: (text: string, record: DataType) => (
+                    <Button onClick={() => handleChangeStatus(record.id)} color="danger" variant="outlined" htmlType="button">
+                        Impreso
+                    </Button>
+                ),
+            }
+        ] : []),
     ];
 
     return (

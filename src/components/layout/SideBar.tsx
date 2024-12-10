@@ -1,86 +1,70 @@
-'use client'
-
-import React, { useEffect, useState } from 'react';
-import type { MenuProps } from 'antd';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, theme } from 'antd';
-import Image from 'next/image';
-import { StateAuthInterface, useAuthStore } from '@/store/useAuthStore';
-import { useLogout } from '@/hooks/useLogout';
+import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import ListReports from './ListReports';
 import PrintedReports from './PrintedReports';
+import { useLogout } from '@/hooks/useLogout';
 
+const { Content, Sider } = Layout;
 
-const { Header, Content, Footer, Sider } = Layout;
+const items = [
+    { label: 'Lista de reportes', key: '1', icon: <i className="fa-solid fa-file"></i> },
+    { label: 'Reportes impresos', key: '2', icon: <i className="fa-solid fa-print"></i> },
+];
 
-type MenuItem = Required<MenuProps>['items'][number];
+const LogoutButton = [
+    { label: 'Cerrar Sesión', key: 'logout', icon: <i className="fa-solid fa-left-from-bracket"></i> },
+];
 
-type Props = {
-}
-
-const SideBar: React.FC<Props> = () => {
-    // AUTH
-    const resetAuth = useAuthStore((state: StateAuthInterface) => state.resetAuth)
+const SideBar: React.FC = () => {
+    const resetAuth = useAuthStore((state) => state.resetAuth);
+    const logout = useLogout(resetAuth);
     const auth = useAuthStore();
     const router = useRouter();
-    const logout = useLogout(resetAuth);
-    const handleLogout = () => {
-        logout();
-    };
+    const [collapsed, setCollapsed] = useState(false);
+    const [selectedKey, setSelectedKey] = useState<string>('1');
+    const [logoutTriggered, setLogoutTriggered] = useState(false);
 
-    function getItem(
-        label: React.ReactNode,
-        key: React.Key,
-        icon?: React.ReactNode,
-        onClick?: () => void,
-        children?: MenuItem[],
-    ): MenuItem {
-        if (key === '2' && !auth.authenticated) {
-            return {
-                key,
-                icon,
-                children,
-                label,
-                disabled: true,
-            };
-        }
-        return {
-            key,
-            icon,
-            children,
-            label,
-            onClick,
-        };
-    }
-
-    const changeSelectedKey = (key:string) => {
-        setSelectedKey(key)
-    }
-
-    const items: MenuItem[] = [
-        getItem('Lista de reportes', '1', <i className="fa-solid fa-file"></i>, () => changeSelectedKey('1')),
-        getItem('Reportes impresos', '2', <i className="fa-solid fa-print"></i>, () => changeSelectedKey('2')),
-    ];
-
-    const bottomItems: MenuItem[] = [
-        getItem('Cerrar Sesión', '2',  <i className="fa-solid fa-left-from-bracket"></i>, handleLogout),
-    ];
+    const {
+        token: { colorBgContainer, borderRadiusLG },
+    } = theme.useToken();
 
     useEffect(() => {
         const checkAuth = () => {
             if (!auth.loading && !auth.authenticated) {
-                router.push('/')
+                router.push('/');
             }
         };
         checkAuth();
-    }, [auth.loading, auth.authenticated])
+    }, [auth.loading, auth.authenticated, router]);
 
-    // SIDEBAR
-    const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState<string>('1');
-    const {
-        token: { colorBgContainer, borderRadiusLG },
-    } = theme.useToken();
+    useEffect(() => {
+        if (logoutTriggered) {
+            router.push('/');
+        }
+    }, [logoutTriggered, router]);
+
+    const handleMenuSelect = (e: { key: string }) => {
+        if (e.key === 'logout') {
+            setLogoutTriggered(true);
+            logout();
+        } else {
+            setSelectedKey(e.key);
+        }
+    };
+
+    const renderContent = () => {
+        switch (selectedKey) {
+            case '1':
+                return <ListReports status={0} />;
+            case '2':
+                return <PrintedReports status={1} />;
+            default:
+                return <div>Select an option</div>;
+        }
+    };
 
     return auth.authenticated ? (
         <Layout style={{ minHeight: '100vh' }}>
@@ -90,40 +74,40 @@ const SideBar: React.FC<Props> = () => {
                 onCollapse={(value) => setCollapsed(value)}
                 width={250}
                 collapsedWidth={80}
-                className='py-10 relative'
+                className="py-10"
                 breakpoint={'md'}
             >
+                <div className="demo-logo-vertical" />
                 {collapsed ? (
-                    <div className='relative w-full h-12'>
-                        <Image src={'/favicon.png'} alt='Logo Lifequiro' fill priority className='object-contain px-5 ' />
+                    <div className="relative w-full h-12">
+                        <Image src={'/favicon.png'} alt="Logo Lifequiro" fill priority className="object-contain px-5 " />
                     </div>
                 ) : (
-                    <div className='relative w-full h-12'>
-                        <Image src={'/logo_white.webp'} alt='Logo Lifequiro' fill priority className='object-contain px-5' />
+                    <div className="relative w-full h-12">
+                        <Image src={'/logo_white.webp'} alt="Logo Lifequiro" fill priority className="object-contain px-5" />
                     </div>
                 )}
-                <div className='h-12 w-full' />
+                <div className="h-12 w-full" />
                 <div className='flex flex-col justify-between h-[calc(100vh-12rem)]'>
                     <Menu
                         theme="dark"
-                        selectedKeys={[selectedKey]}
+                        defaultSelectedKeys={['1']}
                         mode="inline"
                         items={items}
-                        className='flex flex-col px-3'
+                        onSelect={handleMenuSelect}
                     />
-
                     <Menu
                         theme="dark"
+                        defaultSelectedKeys={['1']}
                         mode="inline"
-                        items={bottomItems}
-                        className='flex flex-col px-3'
+                        items={LogoutButton}
+                        onSelect={handleMenuSelect}
                     />
                 </div>
             </Sider>
-            <Layout className='py-5'>
+            <Layout className="py-5">
                 <Content style={{ margin: '0 16px' }}>
                     <div
-                        className='h-full'
                         style={{
                             padding: 24,
                             minHeight: 360,
@@ -131,11 +115,7 @@ const SideBar: React.FC<Props> = () => {
                             borderRadius: borderRadiusLG,
                         }}
                     >
-                        {selectedKey === '1' ? (
-                            <ListReports status={0}/> 
-                        ) : (
-                            <PrintedReports status={1}/> 
-                        )} 
+                        {renderContent()}
                     </div>
                 </Content>
             </Layout>

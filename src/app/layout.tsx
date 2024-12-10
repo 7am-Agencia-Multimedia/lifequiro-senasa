@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import ClientAuth from '@/components/auth/ClientAuth'
 import ClientToaster from '@/components/auth/ClientToaster'
-import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ['latin'] })
 

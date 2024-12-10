@@ -57,29 +57,28 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
         }
     }, [reportUser, userData, printed]);
 
-    async function handleChangeStatus() {
-        //setLoading(true)
-        try {
-            const { data: res } = await axios.request({
-                url: '/api/report/status',
-                method: 'PATCH',
-                data: {
-                    id: userData?.id,
-                    status: 1
-                }
-            });
-            console.log(res.data) 
-            // if (res.success === true) {
-            //     window.close();
-            // }
-            toast.success('Reporte impreso')
-        } catch (error) {
-            toast.error('El reporte ya fue impreso')
-        } finally {
-            setLoading(false)
-        }
-    }
-
+    // async function handleChangeStatus() {
+    //     //setLoading(true)
+    //     try {
+    //         const { data: res } = await axios.request({
+    //             url: '/api/report/status',
+    //             method: 'PATCH',
+    //             data: {
+    //                 id: userData?.id,
+    //                 status: 1
+    //             }
+    //         });
+    //         console.log(res.data) 
+    //         // if (res.success === true) {
+    //         //     window.close();
+    //         // }
+    //         toast.success('Reporte impreso')
+    //     } catch (error) {
+    //         toast.error('El reporte ya fue impreso')
+    //     } finally {
+    //         setLoading(false)
+    //     }
+    // }
 
     if (loading) {
         return (
@@ -92,9 +91,9 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
     return (
         <div className='flex w-full justify-center items-center'>
             <div className="relative w-[700px] h-auto overflow-hidden flex flex-col justify-center items-center bg-gray-200">
-                <Button onClick={handleChangeStatus} color="danger" variant="solid" htmlType="button" size='large' className='absolute top-24 buttonIgnore'>
+                {/* <Button onClick={handleChangeStatus} color="danger" variant="solid" htmlType="button" size='large' className='absolute top-24 buttonIgnore'>
                     Impreso
-                </Button>
+                </Button> */}
                 <ReportPrintTemplate report={reportUser} user={userData} />
             </div>
         </div>
