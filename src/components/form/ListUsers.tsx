@@ -65,7 +65,7 @@ const ListUsers: React.FC<Props> = ({ lastReport, successReport, statusFiltered}
                 });
     
                 setReportUsers(sortedReports);
-                console.log(sortedReports);
+                //console.log(sortedReports);
             } catch (error) {
                 console.error(error);
             }

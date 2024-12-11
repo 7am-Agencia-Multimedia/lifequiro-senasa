@@ -1,14 +1,11 @@
 'use client'
 
 import ListUsers from '@/components/form/ListUsers'
-import SideBar from '@/components/layout/SideBar'
 import FormReport from '@/components/reportList/FormReport'
 import SearchUser from '@/components/reportList/SearchUser'
 import { Disease, ReportUser, userData } from '@/utils/types'
-import { UserOutlined } from '@ant-design/icons'
-import { Button, Divider, InputNumber, Modal } from 'antd'
+import { Button} from 'antd'
 import axios from 'axios'
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 type Props = {
@@ -103,8 +100,6 @@ const ListReports = ({status}: Props) => {
             setLoading(false);
         }
     };
-
-
 
     return (
         isLoading ? (

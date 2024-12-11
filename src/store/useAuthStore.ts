@@ -20,13 +20,16 @@ export const useAuthStore = create<StateAuthInterface>((set) => ({
     authenticated: false,
     loading: true,
     setAuthenticated: (user) => set((state) => ({ ...state, ...user, authenticated: true, loading: false })),
-    resetAuth: () => set((state) => ({
-        _id: '',
-        email: '',
-        name: '',
-        phone_number: '',
-        token: '',
-        authenticated: false,
-        loading: false
-    })),
+    resetAuth: () => set((state) => {
+        //console.log('ResetAuth ejecutado: limpiando estado global.');
+        return {
+            _id: '',
+            email: '',
+            name: '',
+            phone_number: '',
+            token: '',
+            authenticated: false,
+            loading: true,
+        };
+    }),
 }))

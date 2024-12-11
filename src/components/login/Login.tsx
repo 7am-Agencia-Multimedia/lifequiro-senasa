@@ -22,9 +22,11 @@ const Login = () => {
     const setAuthenticated = useAuthStore((state: StateAuthInterface) => state.setAuthenticated);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     async function onSubmit(data: LoginFields) {
         setLoading(true)
+        setError(false)
         try {
             const { data: res } = await axios.request({
                 url: '/api/user/login',
@@ -35,17 +37,15 @@ const Login = () => {
                 }
             });
             setAuthenticated(res.data);
-            router.push('/admin');
-            
+            window.location.href = '/admin';
         } catch (error) {
-            //toast.error('Error al iniciar sesión');
-        } finally {
-            setLoading(false)
+            console.log(error);
+            setError(true)
         }
     }
 
     const onFinish = (data: LoginFields) => {
-        console.log('Received values of form: ', data);
+        //console.log('Received values of form: ', data);
         onSubmit(data);
     };
 
@@ -88,6 +88,11 @@ const Login = () => {
                                 iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                             />
                         </Form.Item>
+                        {error ? (
+                            <div>
+                                <p className='text-xs text-red-500 text-center'>Error al iniciar sesión, vuelve a intentarlo.</p>
+                            </div>
+                        ): null}
                     </div>
                     {/* <Form.Item>
                     <Flex justify="space-between" align="center">
@@ -99,9 +104,9 @@ const Login = () => {
                 </Form.Item> */}
 
                     <Form.Item>
-                        <Button block type="primary" htmlType="submit" size='large' className='w-full' loading={loading}>
-                            Inicia sesión
-                        </Button>
+                            <Button block type="primary" htmlType="submit" size='large' className='w-full' loading={loading}>
+                                Inicia sesión
+                            </Button>
                     </Form.Item>
                 </Form>
             </div>

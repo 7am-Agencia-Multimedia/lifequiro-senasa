@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import ClientAuth from '@/components/auth/ClientAuth'
 import ClientToaster from '@/components/auth/ClientToaster'
+import ClientAuth from '@/components/auth/ClientAuth'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,7 +22,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.2/css/all.css" />
       </head>
       <body className={inter.className}>
-        <ClientAuth />
+        <ClientAuth/>
         {children}
         <ClientToaster />
       </body>

@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu, Modal, notification, theme } from 'antd';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -19,13 +21,14 @@ const LogoutButton = [
 ];
 
 const SideBar: React.FC = () => {
-    const resetAuth = useAuthStore((state) => state.resetAuth);
-    const logout = useLogout(resetAuth);
+    
     const auth = useAuthStore();
+    const resetAuth = useAuthStore((state) => state.resetAuth);
     const router = useRouter();
     const [collapsed, setCollapsed] = useState(false);
     const [selectedKey, setSelectedKey] = useState<string>('1');
-    const [logoutTriggered, setLogoutTriggered] = useState(false);
+    const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+    const logout = useLogout(resetAuth);
 
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -38,18 +41,12 @@ const SideBar: React.FC = () => {
             }
         };
         checkAuth();
-    }, [auth.loading, auth.authenticated, router]);
-
-    useEffect(() => {
-        if (logoutTriggered) {
-            router.push('/');
-        }
-    }, [logoutTriggered, router]);
+    }, [auth.loading, auth.authenticated, router])
 
     const handleMenuSelect = (e: { key: string }) => {
         if (e.key === 'logout') {
-            setLogoutTriggered(true);
             logout();
+            window.location.href = '/';
         } else {
             setSelectedKey(e.key);
         }
@@ -66,7 +63,7 @@ const SideBar: React.FC = () => {
         }
     };
 
-    return auth.authenticated ? (
+    return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider
                 collapsible
@@ -88,17 +85,16 @@ const SideBar: React.FC = () => {
                     </div>
                 )}
                 <div className="h-12 w-full" />
-                <div className='flex flex-col justify-between h-[calc(100vh-12rem)]'>
+                <div className="flex flex-col justify-between h-[calc(100vh-12rem)]">
                     <Menu
                         theme="dark"
-                        defaultSelectedKeys={['1']}
+                        selectedKeys={[selectedKey]}
                         mode="inline"
                         items={items}
                         onSelect={handleMenuSelect}
                     />
                     <Menu
                         theme="dark"
-                        defaultSelectedKeys={['1']}
                         mode="inline"
                         items={LogoutButton}
                         onSelect={handleMenuSelect}
@@ -120,7 +116,7 @@ const SideBar: React.FC = () => {
                 </Content>
             </Layout>
         </Layout>
-    ) : null;
+    );
 };
 
 export default SideBar;
