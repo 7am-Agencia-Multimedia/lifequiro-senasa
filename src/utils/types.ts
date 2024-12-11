@@ -8,9 +8,10 @@ export type CreateReportTypes = {
     study_center: string,
     procedure_center: string,
     traffic_accident: boolean,
-    diagnosis: string,
     procedure_names: string,
     current_disease_history: string,
+    pathological_antecedent: string,
+    doctor_name: string,
 }
 
 export type userData = {
@@ -80,4 +81,6 @@ export interface ReportUser {
     updated_at: string;
     disease: Disease;
     disease_variant: DiseaseVariant;
+    pathological_antecedent: string,
+    doctor_name: string,
 }

@@ -99,7 +99,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     disease_variant_id: selectedVariant,
                     procedure_names: treatment,
                     current_disease_history: historyDisease,
-                    //diagnosis: data.diagnosis,
+                    pathological_antecedent: data.pathological_antecedent,
+                    doctor_name: data.doctor_name
                 },
             });
             console.log('unexito:', response.data)
@@ -146,7 +147,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             label="Nombre del médico"
                             layout="vertical"
                             labelCol={{ span: 24 }}
-                            name="doctorName"
+                            name="doctor_name"
                             rules={[{ required: true, message: 'Seleccione un médico' }]}
                             style={baseStyle}
                         >
@@ -347,7 +348,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             label="Antecedente patológico"
                             layout="vertical"
                             labelCol={{ span: 24 }}
-                            name="diagnosis"
+                            name="pathological_antecedent"
                             rules={[{ required: true, message: 'Ingrese el antecedente patológico' }]}
                             className='min-h-28'
                         >
