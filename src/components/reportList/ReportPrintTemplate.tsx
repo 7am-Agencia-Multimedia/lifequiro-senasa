@@ -83,7 +83,7 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                             </div>
                             <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-24'}>Teléfono:</div>
-                                <div className={'w-24'}>{report?.phone}</div>
+                                <div className={'w-24 px-1'}>{report?.phone}</div>
                             </div>
                         </div>
                         <div className={'flex border-black'}>
