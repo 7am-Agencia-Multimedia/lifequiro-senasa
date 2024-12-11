@@ -40,7 +40,7 @@ const SearchUser = ({ showModal, visible, idUser, handleOk, loading, handleInput
     return (
         <Modal
             title={[
-                <div className='w-full flex flex-col justify-end items-center gap-2'>
+                <div key={'patient_id'} className='w-full flex flex-col justify-end items-center gap-2'>
                     <div className='relative w-48 h-24'>
                         <Image src={'/logo_color.png'} alt='Logo Lifequiro' fill className='object-contain' />
                     </div>
