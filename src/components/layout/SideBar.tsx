@@ -3,17 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Modal, notification, theme } from 'antd';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import ListReports from './ListReports';
 import PrintedReports from './PrintedReports';
 import { useLogout } from '@/hooks/useLogout';
+import AddDisease from './AddDisease';
 
 const { Content, Sider } = Layout;
 
 const items = [
-    { label: 'Lista de reportes', key: '1', icon: <i className="fa-solid fa-file"></i> },
-    { label: 'Reportes impresos', key: '2', icon: <i className="fa-solid fa-print"></i> },
+    { label: 'Lista de reportes', key: 'report-list', icon: <i className="fa-solid fa-file"></i>, onClick: () => console.log('click')},
+    { label: 'Reportes impresos', key: 'print-report', icon: <i className="fa-solid fa-print"></i> },
+    { label: 'Enfermedades', key: 'disease', icon: <i className="fa-solid fa-notes-medical"></i> },
 ];
 
 const LogoutButton = [
@@ -21,14 +23,20 @@ const LogoutButton = [
 ];
 
 const SideBar: React.FC = () => {
-    
+
+    const params = new URLSearchParams(document.location.search)
+    const page = params.get('page')
+
     const auth = useAuthStore();
     const resetAuth = useAuthStore((state) => state.resetAuth);
     const router = useRouter();
+    const pathname = usePathname();
+    const currentSearchParams = useSearchParams();
     const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState<string>('1');
-    const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+    const [selectedKey, setSelectedKey] = useState<string>(page || 'report-list');
+    //const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
     const logout = useLogout(resetAuth);
+
 
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -49,15 +57,28 @@ const SideBar: React.FC = () => {
             window.location.href = '/';
         } else {
             setSelectedKey(e.key);
+            handleUpdateParams(e.key)
+            console.log(e.key) 
         }
+        
     };
+
+    const handleUpdateParams = (page:string) => {
+        const updateSearchParams = new URLSearchParams(currentSearchParams?.toString());
+        updateSearchParams.set('page', page);
+        router.push(`${pathname}?${updateSearchParams.toString()}`);
+    }
 
     const renderContent = () => {
         switch (selectedKey) {
-            case '1':
+            case 'report-list':
                 return <ListReports status={0} />;
-            case '2':
+
+            case 'print-report':
                 return <PrintedReports status={1} />;
+
+            case 'disease':
+                return <AddDisease />;
             default:
                 return <div>Select an option</div>;
         }
@@ -92,6 +113,7 @@ const SideBar: React.FC = () => {
                         mode="inline"
                         items={items}
                         onSelect={handleMenuSelect}
+                        onClick={(e) => console.log(e) }
                     />
                     <Menu
                         theme="dark"

@@ -52,7 +52,7 @@ const ListReports = ({status}: Props) => {
             try {
                 const { data: res } = await axios.request({
                     method: 'GET',
-                    url: '/api/disease/getAll',
+                    url: '/api/disease/getAllDiseasesFrom',
                 });
                 setDiseases(res.data.data);
             } catch (error) {
@@ -62,6 +62,8 @@ const ListReports = ({status}: Props) => {
         handleGetDiseasesList();
         setHasRun(true);
     }, [modalForm, hasRun]);
+
+    console.log(diseases) 
 
     // OBETENER ID DE USUARIO Y DATA USER 
 

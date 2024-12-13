@@ -84,3 +84,18 @@ export interface ReportUser {
     pathological_antecedent: string,
     doctor_name: string,
 }
+
+export interface VariantsTypes {
+    id: number,
+    name: string,
+    description: string,
+    treatment: {
+        [key: number]: string;
+    };
+}
+
+export interface PaginationTypes {
+    limit: number,
+    total: number,
+    totalPages: number
+}

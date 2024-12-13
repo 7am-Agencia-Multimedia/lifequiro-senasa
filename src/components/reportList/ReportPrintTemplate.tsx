@@ -16,8 +16,6 @@ export default function ReportPrintTemplate({ report, user }: Props) {
 
     const fechaFormateada = `${day}/${month}/${year}`;
 
-    //console.log() 
-
     return (
         <div className={'flex flex-col w-full'}>
             <div id="printOne" className={'flex flex-col gap-8 bg-white aspect-[1/1.414] h-full p-10 text-[.65rem] font-medium select-none'}>
@@ -96,7 +94,7 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                         <div className={'flex border-black'}>
                             <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 pr-7'}>Centro donde se realiza el procedimiento:</div>
-                                <p className="px-1">{report?.procedure_center}</p>
+                                <p className="px-1">{report?.disease_variant.treatment[0]}</p>
                             </div>
                         </div>
                         <div className={'flex border-black'}>
@@ -119,8 +117,12 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                     </div>
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Nombre del (los) procedimiento (s):</div>
-                        <div className={'p-1 h-28'}>
-                            1. {report?.procedure_names}
+                        <div className={'flex flex-col p-1 h-28'}>
+                            <p>1: {report?.disease_variant.treatment["1"]}</p>
+                            <p>2: {report?.disease_variant.treatment["2"]}</p>
+                            <p>3: {report?.disease_variant.treatment["3"]}</p>
+                            <p>4: {report?.disease_variant.treatment["4"]}</p>
+                            <p>5: {report?.disease_variant.treatment["5"]}</p>
                         </div>
                     </div>
                     <div className={'flex flex-col'}>

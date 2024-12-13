@@ -1,15 +1,15 @@
 import axios from "axios";
 
-export default async function GET(req, res) {
+export default async function DELETE(req, res) {
 
-    const {page} = req.body;
+    const { id } = req.body;
 
-    console.log(page);
+    console.log(id);
 
     try {
         const { data: response } = await axios.request({
-            url: `${process.env.SERVER_URL}/diseases?page=${page}`,
-            method: 'GET',
+            url: `${process.env.SERVER_URL}/diseases/${id}`,
+            method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${req.cookies['auth-token']}`
             }

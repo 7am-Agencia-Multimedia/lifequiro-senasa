@@ -65,12 +65,17 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
         if (selectedDiseaseObj) {
             const selectedVariantObj = selectedDiseaseObj.variants.find(variant => variant.id === value);
             if (selectedVariantObj) {
-                setTreatment(selectedVariantObj.treatment);
-                setHistoryDisease(selectedVariantObj.description)
+                // Transformar el objeto en un formato "clave: valor"
+                const treatmentText = Object.entries(selectedVariantObj.treatment)
+                    .map(([key, value]) => `${key}: ${value}`)
+                    .join('\n');
+                setTreatment(treatmentText);
+                setHistoryDisease(selectedVariantObj.description);
                 console.log("Tratamiento actualizado:", selectedVariantObj.description);  // Verifica si la descripción se está guardando
             }
         }
     };
+    
 
     const onFinish = async (data: CreateReportTypes) => {
         console.log('Received values of form: ', data);
@@ -329,7 +334,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             <div className='flex flex-col gap-2'>
                                 <p>Procedimiento a seguir</p>
                                 <TextArea
-                                    rows={4}
+                                    rows={5}
                                     value={treatment}
                                     disabled
                                     name='procedure_names'

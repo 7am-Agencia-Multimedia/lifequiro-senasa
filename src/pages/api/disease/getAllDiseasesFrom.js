@@ -1,14 +1,9 @@
 import axios from "axios";
 
 export default async function GET(req, res) {
-
-    const {page} = req.body;
-
-    console.log(page);
-
     try {
         const { data: response } = await axios.request({
-            url: `${process.env.SERVER_URL}/diseases?page=${page}`,
+            url: `${process.env.SERVER_URL}/diseases`,
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${req.cookies['auth-token']}`
