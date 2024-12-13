@@ -3,9 +3,9 @@ import Image from "next/image";
 
 type Props = {
     report: ReportUser | null,
-    user: userData | null,
+    //user: userData | null,
 }
-export default function ReportPrintTemplate({ report, user }: Props) {
+export default function ReportPrintTemplate({ report}: Props) {
 
     const today = new Date();
 
@@ -68,17 +68,17 @@ export default function ReportPrintTemplate({ report, user }: Props) {
                         <div className={'flex justify-between border-black'}>
                             <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-[7.8rem]'}>Cédula:</div>
-                                <p className="px-1">{user?.document_no}</p>
+                                <p className="px-1">{report?.affiliate.document_no}</p>
                             </div>
                             <div className={'flex ustify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-24'}>Edad:</div>
-                                <div className={'w-24 px-1'}>{user?.age}</div>
+                                <div className={'w-24 px-1'}>{report?.affiliate.age}</div>
                             </div>
                         </div>
                         <div className={'flex justify-between border-black'}>
                             <div className={'flex ustify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-[7.8rem]'}>Sexo:</div>
-                                <p className="px-1">{user?.gender === 'F' ? 'Femenino' : 'Masculino'}</p>
+                                <p className="px-1">{report?.affiliate.gender === 'F' ? 'Femenino' : 'Masculino'}</p>
                             </div>
                             <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-24'}>Teléfono:</div>

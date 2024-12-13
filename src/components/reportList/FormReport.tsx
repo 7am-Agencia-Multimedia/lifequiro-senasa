@@ -47,6 +47,21 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
     const [historyDisease, setHistoryDisease] = useState<string>('');
     const [loading, setLoading] = useState(false);
 
+    const [medicandCenters, setMedicandCenters] = useState({
+        center: "Life Quiro Spine Rehabilitation Center",
+        centercode: 837345,
+        doctors: [
+            {
+                name: "Dr. Jensen Malcoldn cid",
+                specialty: "Fisiatra"
+            },
+            {
+                name: "Dr. Nehemias Lopez Polanco",
+                specialty: "Ortopeda"
+            }
+        ]
+    })
+
     useEffect(() => {
         if (!modalForm) {
             form.resetFields();
@@ -75,7 +90,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             }
         }
     };
-    
+
 
     const onFinish = async (data: CreateReportTypes) => {
         console.log('Received values of form: ', data);
@@ -84,6 +99,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             // Maneja el error o alerta al usuario de que debe seleccionar ambos.
             return;
         }
+
+        console.log(data.study_center) 
         setLoading(true)
         try {
             const { data: response } = await axios.request({
@@ -98,7 +115,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     phone: data.phone.toString(),
                     study_center: data.study_center,
                     procedure_center: data.procedure_center,
-                    traffic_accident: data.traffic_accident,
+                    traffic_accident: data.traffic_accident || false,
                     center_id: 1,
                     disease_id: selectedDisease,
                     disease_variant_id: selectedVariant,
@@ -146,6 +163,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                         age: userData?.age || 0,
                         phone: userData?.phone || 1234567891,
                         gender: userData?.gender || 'no-data',
+                        traffic_accident: false,
                     }}>
                     <div className='flex gap-5 w-full h-16'>
                         <Form.Item
@@ -157,9 +175,9 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             style={baseStyle}
                         >
                             <Select style={{ width: '100%' }} placeholder={'Seleccione un médico'}>
-                                <Option value="doc1">médico 1</Option>
-                                <Option value="doc2">médico 2</Option>
-                                <Option value="doc3">médico 3</Option>
+                                {medicandCenters.doctors.map((doctor, index) => (
+                                    <Option key={index} value={doctor.name}>{doctor.name} | {doctor.specialty}</Option>
+                                ))}
                             </Select>
                         </Form.Item>
                         <Form.Item
@@ -258,8 +276,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
-                                <Option value="demo1">Demo 1</Option>
+                            <Select style={{ width: '100%', maxWidth: '244.5px'}} placeholder={'Seleccione un centro'}>
+                                <Option value={medicandCenters.center}>{medicandCenters.center}</Option>
                                 <Option value="demo2">Demo 2</Option>
                                 <Option value="demo3">Demo 3</Option>
                             </Select>
@@ -272,8 +290,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }} placeholder={'Seleccione un centro'}>
-                                <Option value="demo1">Demo 1</Option>
+                            <Select style={{ width: '100%',  maxWidth: '244.5px'}} placeholder={'Seleccione un centro'}>
+                                <Option value={medicandCenters.center}>{medicandCenters.center}</Option>
                                 <Option value="demo2">Demo 2</Option>
                                 <Option value="demo3">Demo 3</Option>
                             </Select>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Form, Input, Modal } from 'antd';
 import axios from 'axios';
 import { VariantsTypes } from '@/utils/types';
@@ -104,8 +104,6 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
         console.log('Datos a enviar:', data);
     };
 
-    console.log(variantes)
-
     return (
         <Modal
             title={<h5 className='text-3xl'>Agregar Enfermedad</h5>}
@@ -122,9 +120,10 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                     name='Create Report'
                     style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}
                     onFinish={onFinish}
-                    initialValues={{}}
+                    initialValues={{
+                        disease: '',
+                    }}
                 >
-
                     <div className='flex flex-col gap-3'>
                         {/* INPUT DISEASE */}
                         <div className='flex gap-5 w-full h-16'>
@@ -139,7 +138,6 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                 <Input />
                             </Form.Item>
                         </div>
-
                         {/* ADD VARIANT */}
                         <div className='flex flex-col gap-5' style={{ flexGrow: 1 }}>
                             {variantes.map((variante) => (

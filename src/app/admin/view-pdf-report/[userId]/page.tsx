@@ -26,16 +26,6 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
                 } else {
                     console.error('Error al obtener el reporte');
                 }
-
-                // Fetching user data
-                const userResponse = await axios.post('/api/user/id', {
-                    paciente_id: userId,
-                });
-                if (userResponse.data) {
-                    setUserData(userResponse.data.data);
-                } else {
-                    setErrorSearchUser(true);
-                }
             } catch (error) {
                 console.error('Error al realizar las solicitudes:', error);
                 setErrorSearchUser(true);
@@ -70,7 +60,7 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
     return (
         <div className='flex w-full justify-center items-center'>
             <div className="relative w-[700px] h-auto overflow-hidden flex flex-col justify-center items-center bg-gray-200">
-                <ReportPrintTemplate report={reportUser} user={userData} />
+                <ReportPrintTemplate report={reportUser} />
             </div>
         </div>
     );
