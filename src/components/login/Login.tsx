@@ -22,8 +22,10 @@ const Login = () => {
     const setAuthenticated = useAuthStore((state: StateAuthInterface) => state.setAuthenticated);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    
     const [error, setError] = useState(false);
-
+    const [errorMessage, setErrorMessage] = useState('')
+    
     async function onSubmit(data: LoginFields) {
         setLoading(true)
         setError(false)
@@ -38,9 +40,29 @@ const Login = () => {
             });
             setAuthenticated(res.data);
             window.location.href = '/admin';
-        } catch (error) {
-            console.log(error);
+        } catch (error: unknown) {
+            //console.log(error.message);
             setError(true)
+            setLoading(false)
+
+            if (axios.isAxiosError(error)) {
+
+                console.log(error.response) 
+                if (error.response) {
+                    const errorMessage = error.response?.data?.message === 'Invalid password'
+                        ? 'Contraseña incorrecta, vuelve a intentarlo'
+                        : error.response?.data?.message === 'Invalid email' ? 'Email inválido, vuelve a intentarlo.' : 'Error al iniciar sesión, vuelve a intentarlo.';
+
+                        setErrorMessage(errorMessage)
+                } else {
+                    console.log('Error desconocido en la petición');
+                    const errorMessage = 'Error al iniciar sesión, vuelve a intentarlo.'
+                    setErrorMessage(errorMessage)
+                }
+            } else {
+                console.log('Error desconocido');
+                alert('Error desconocido');
+            }
         }
     }
 
@@ -78,7 +100,9 @@ const Login = () => {
                         </Form.Item>
                         <Form.Item
                             name="password"
-                            rules={[{ required: true, message: 'Introduzca su contraseña' }]}
+                            rules={[{ required: true, message: 'Introduzca su contraseña' },
+                                    { min: 8, message: 'La contraseña debe tener al menos 8 caracteres' }
+                            ]}
                         >
                             <Input.Password
                                 placeholder="Password"
@@ -90,9 +114,9 @@ const Login = () => {
                         </Form.Item>
                         {error ? (
                             <div>
-                                <p className='text-xs text-red-500 text-center'>Error al iniciar sesión, vuelve a intentarlo.</p>
+                                <p className='text-xs text-red-500 text-center'>{errorMessage}</p>
                             </div>
-                        ): null}
+                        ) : null}
                     </div>
                     {/* <Form.Item>
                     <Flex justify="space-between" align="center">
@@ -104,9 +128,9 @@ const Login = () => {
                 </Form.Item> */}
 
                     <Form.Item>
-                            <Button block type="primary" htmlType="submit" size='large' className='w-full' loading={loading}>
-                                Inicia sesión
-                            </Button>
+                        <Button block type="primary" htmlType="submit" size='large' className='w-full' loading={loading}>
+                            Inicia sesión
+                        </Button>
                     </Form.Item>
                 </Form>
             </div>
