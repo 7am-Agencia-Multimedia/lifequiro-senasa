@@ -32,7 +32,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
         setVariantes([])
     }
 
-    console.log(variantes)
+    //console.log(variantes)
 
     useEffect(() => {
         if (diseaseSelected) {
@@ -102,10 +102,10 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
         });
     };
 
-    console.log(variantes)
+    //console.log(variantes)
 
     const editDisease = async (data: any) => {
-        console.log('Received values of form: ', data);
+        //console.log('Received values of form: ', data);
 
         if (action === 'save') {
             setIsSaving(true);
@@ -137,14 +137,14 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
 
     const onFinish = async (data: any) => {
         if (action === 'save') {
-            console.log('Guardar sin cerrar', data);
+            //console.log('Guardar sin cerrar', data);
             editDisease(data);
         } else if (action === 'saveAndClose') {
-            console.log('Guardar y cerrar');
+            //console.log('Guardar y cerrar');
             editDisease(data);
             showCloseEditModalForm();
         }
-        console.log('Datos a enviar:', data);
+        //console.log('Datos a enviar:', data);
     };
 
     return (

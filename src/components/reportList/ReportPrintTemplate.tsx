@@ -1,4 +1,4 @@
-import { ReportUser, userData } from "@/utils/types";
+import { ReportUser} from "@/utils/types";
 import Image from "next/image";
 
 type Props = {
@@ -15,6 +15,8 @@ export default function ReportPrintTemplate({ report}: Props) {
     const year = today.getFullYear();
 
     const fechaFormateada = `${day}/${month}/${year}`;
+
+    console.log(report) 
 
     return (
         <div className={'flex flex-col w-full'}>
@@ -94,7 +96,7 @@ export default function ReportPrintTemplate({ report}: Props) {
                         <div className={'flex border-black'}>
                             <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 pr-7'}>Centro donde se realiza el procedimiento:</div>
-                                <p className="px-1">{report?.disease_variant.treatment[0]}</p>
+                                <p className="px-1">{report?.procedure_center}</p>
                             </div>
                         </div>
                         <div className={'flex border-black'}>

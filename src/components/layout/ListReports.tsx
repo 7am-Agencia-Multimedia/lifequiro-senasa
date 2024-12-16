@@ -63,7 +63,7 @@ const ListReports = ({status}: Props) => {
         setHasRun(true);
     }, [modalForm, hasRun]);
 
-    console.log(diseases) 
+    //onsole.log(diseases) 
 
     // OBETENER ID DE USUARIO Y DATA USER 
 

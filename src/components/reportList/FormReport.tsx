@@ -86,21 +86,19 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     .join('\n');
                 setTreatment(treatmentText);
                 setHistoryDisease(selectedVariantObj.description);
-                console.log("Tratamiento actualizado:", selectedVariantObj.description);  // Verifica si la descripción se está guardando
+                //console.log("Tratamiento actualizado:", selectedVariantObj.description);  // Verifica si la descripción se está guardando
             }
         }
     };
 
 
     const onFinish = async (data: CreateReportTypes) => {
-        console.log('Received values of form: ', data);
+        //console.log('Received values of form: ', data);
 
         if (!selectedDisease || !selectedVariant) {
             // Maneja el error o alerta al usuario de que debe seleccionar ambos.
             return;
         }
-
-        console.log(data.study_center) 
         setLoading(true)
         try {
             const { data: response } = await axios.request({
@@ -125,7 +123,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     doctor_name: data.doctor_name
                 },
             });
-            console.log('unexito:', response.data)
+            //console.log('unexito:', response.data)
             setLastReport(response.data)
             setSuccessReport(true)
         } catch (error) {
@@ -174,7 +172,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             rules={[{ required: true, message: 'Seleccione un médico' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%' }} placeholder={'Seleccione un médico'}>
+                            <Select style={{ width: '100%', maxWidth: '244.5px' }} placeholder={'Seleccione un médico'}>
                                 {medicandCenters.doctors.map((doctor, index) => (
                                     <Option key={index} value={doctor.name}>{doctor.name} | {doctor.specialty}</Option>
                                 ))}

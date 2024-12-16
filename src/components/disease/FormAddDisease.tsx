@@ -18,6 +18,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
     const [action, setAction] = useState<'save' | 'saveAndClose'>('save');
     const [save, setSave] = useState(false)
     const [saveAndClose, setSaveAndClose] = useState(false)
+    const [diseaseFormValue, setDiseaseFormValue] = useState('')
     const [variantes, setVariantes] = useState<VariantsState>([
         { id: 1, name: '', description: '', treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' } },
     ]);
@@ -45,7 +46,13 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
         setVariantes((prev) =>
             prev.map((variante) =>
                 variante.id === id
-                    ? { ...variante, treatment: { ...variante.treatment, [step]: value } }
+                    ? {
+                        ...variante,
+                        treatment: {
+                            ...variante.treatment,
+                            [step]: value,
+                        },
+                    }
                     : variante
             )
         );
@@ -60,6 +67,10 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
         );
     };
 
+    const handleDiseaseValue = (value: string) => {
+        setDiseaseFormValue(value)
+    }
+
     const onSubmit = async (data: any) => {
         console.log('Received values of form: ', data);
 
@@ -68,15 +79,15 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
         } else if (action === 'saveAndClose') {
             setSaveAndClose(true)
         }
-        
+
         setAddDisease(true)
         try {
             const { data: response } = await axios.request({
                 url: '/api/disease/create',
                 method: 'POST',
                 data: {
-                    disease: data.disease,
-                    variants: variantes.map(variant => ({name: variant.name, description: variant.description, treatment: variant.treatment})),
+                    disease: diseaseFormValue,
+                    variants: variantes.map(variant => ({ name: variant.name, description: variant.description, treatment: variant.treatment })),
                 },
             });
 
@@ -84,6 +95,15 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
             console.log(error);
         } finally {
             setAddDisease(false);
+            setVariantes([
+                {
+                    id: 1,
+                    name: '',
+                    description: '',
+                    treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+                },
+            ]);
+            setDiseaseFormValue('')
             if (action === 'save') {
                 setSave(false)
             } else if (action === 'saveAndClose') {
@@ -121,7 +141,6 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                     style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}
                     onFinish={onFinish}
                     initialValues={{
-                        disease: '',
                     }}
                 >
                     <div className='flex flex-col gap-3'>
@@ -131,11 +150,15 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                 label="Enfermedad"
                                 layout="vertical"
                                 labelCol={{ span: 24 }}
-                                name="disease"
+                                //name="disease"
                                 rules={[{ required: true, message: 'Debes ingresar el nombre de la enfermedad' }]}
                                 style={{ width: '100%' }}
                             >
-                                <Input />
+                                <Input 
+                                    value={diseaseFormValue}
+                                    onChange={(e) => handleDiseaseValue(e.target.value)}
+                                
+                                />
                             </Form.Item>
                         </div>
                         {/* ADD VARIANT */}
@@ -151,7 +174,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                                         label="Nombre de la variante"
                                                         layout="vertical"
                                                         labelCol={{ span: 24 }}
-                                                        name={`variant_name_${variante.id}`}
+                                                        //name={`variant_name_${variante.id}`}
                                                         rules={[{ required: true, message: 'Debes ingresar una variante' }]}
                                                         style={{ width: '100%' }}
                                                     >
@@ -166,7 +189,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                                         label="Descripcion"
                                                         layout="vertical"
                                                         labelCol={{ span: 24 }}
-                                                        name={`variant_description_${variante.id}`}
+                                                        //name={`variant_description_${variante.id}`}
                                                         rules={[{ required: true, message: 'Debes ingresar una descripcion' }]}
                                                         style={{ width: '100%' }}
                                                     >
@@ -183,7 +206,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                                     {[1, 2, 3, 4, 5].map((step) => (
                                                         <Form.Item
                                                             key={step}
-                                                            name={`variant${variante.id}_treatment_${step}`}
+                                                            //name={`variant${variante.id}_treatment_${step}`}
                                                             rules={[{ required: true, message: `Debes ingresar el paso ${step} de la Variante #${variante.id}` }]}
                                                         >
                                                             <Input

@@ -13,7 +13,7 @@ const ClientToaster = () => {
 
     if (!isClient) return null
 
-    return <Toaster position="top-right" />
+    return <Toaster position="top-center" />
 }
 
 export default ClientToaster

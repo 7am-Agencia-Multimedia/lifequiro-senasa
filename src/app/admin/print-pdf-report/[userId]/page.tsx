@@ -94,7 +94,7 @@ const ViewPdfReport = ({ params }: { params: { userId: string } }) => {
                 {/* <Button onClick={handleChangeStatus} color="danger" variant="solid" htmlType="button" size='large' className='absolute top-24 buttonIgnore'>
                     Impreso
                 </Button> */}
-                <ReportPrintTemplate report={reportUser} user={userData} />
+                <ReportPrintTemplate report={reportUser}/>
             </div>
         </div>
     );
