@@ -52,9 +52,9 @@ export default function ReportPrintTemplate({ report}: Props) {
                                 <div className={'font-semibold bg-black text-white p-1 w-[7.8rem]'}>Nombre del médico:</div>
                                 <p className="px-1">{report?.doctor_name}</p>
                             </div>
-                            <div className={'flex'}>
+                            <div className={'flex justify-center items-center'}>
                                 <div className={'font-semibold bg-black text-white p-1 w-24'}>Código:</div>
-                                <div className={'w-24'}></div>
+                                <div className={'px-1 w-24'}>{report?.code}</div>
                             </div>
                         </div>
                         <div className={'flex justify-between border-black'}>

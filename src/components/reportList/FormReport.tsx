@@ -52,7 +52,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
         centercode: 837345,
         doctors: [
             {
-                name: "Dr. Jensen Malcoldn cid",
+                name: "Dr. Jensen Malcoldn",
                 specialty: "Fisiatra"
             },
             {
@@ -67,6 +67,8 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             form.resetFields();
         }
     }, [modalForm, form]);
+
+    console.log(userData)
 
     const handleDiseaseChange = (value: any) => {
         setSelectedDisease(value);
@@ -105,7 +107,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                 url: '/api/report/create',
                 method: 'POST',
                 data: {
-                    code: "report-6546754",
+                    code: data.code.toString(),
                     affiliate_id: userData ? userData.id.toString() : '',
                     affiliate_name: data.affiliate_name,
                     social_security_number: data.social_security_number,
@@ -154,7 +156,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     onFinish={onFinish}
                     initialValues={{
                         //doctorName: auth,
-                        code: userData?.id || 'no-data',
+                        code: medicandCenters.centercode,
                         affiliate_name: userData?.firstname && userData?.lastname ? `${userData.firstname} ${userData.lastname}` : 'no-data',
                         idCard: userData?.document_no || "no-data",
                         social_security_number: userData?.social_id || "no-data",
