@@ -196,6 +196,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
                                                             layout="vertical"
                                                             labelCol={{ span: 24 }}
                                                             style={{ width: '100%' }}
+                                                            rules={[{ required: true, message: 'Escribe el nombre de la variante' }]}
                                                         >
                                                             <Input
                                                                 value={variante.name || ''}

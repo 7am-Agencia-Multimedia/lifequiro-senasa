@@ -15,6 +15,8 @@ type VariantsState = VariantsTypes[];
 
 const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
 
+    const [form] = Form.useForm();
+
     const [action, setAction] = useState<'save' | 'saveAndClose'>('save');
     const [save, setSave] = useState(false)
     const [saveAndClose, setSaveAndClose] = useState(false)
@@ -22,6 +24,20 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
     const [variantes, setVariantes] = useState<VariantsState>([
         { id: 1, name: '', description: '', treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' } },
     ]);
+
+    const handleCloseModal = () => {
+        form.resetFields()
+        setDiseaseFormValue('')
+        setVariantes([
+            {
+                id: 1,
+                name: '',
+                description: '',
+                treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+            },
+        ]);
+        showModalForm()
+    }
 
     const agregarVariante = () => {
         setVariantes([
@@ -94,23 +110,26 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
         } catch (error) {
             console.log(error);
         } finally {
-            setAddDisease(false);
-            setVariantes([
-                {
-                    id: 1,
-                    name: '',
-                    description: '',
-                    treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' },
-                },
-            ]);
-            setDiseaseFormValue('')
             if (action === 'save') {
                 setSave(false)
             } else if (action === 'saveAndClose') {
+                form.resetFields()
                 setSaveAndClose(false)
+                setAddDisease(false);
+                setDiseaseFormValue('')
+                setVariantes([
+                    {
+                        id: 1,
+                        name: '',
+                        description: '',
+                        treatment: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+                    },
+                ]);
             }
         }
     };
+
+    console.log(variantes) 
 
     const onFinish = async (data: any) => {
         if (action === 'save') {
@@ -129,7 +148,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
             title={<h5 className='text-3xl'>Agregar Enfermedad</h5>}
             open={modalForm}
             confirmLoading={true}
-            onCancel={showModalForm}
+            onCancel={handleCloseModal}
             centered
             footer={null}
             maskClosable={false}
@@ -140,7 +159,9 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                     name='Create Report'
                     style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '100%' }}
                     onFinish={onFinish}
+                    form={form}
                     initialValues={{
+                        disease: '',
                     }}
                 >
                     <div className='flex flex-col gap-3'>
@@ -150,14 +171,14 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                 label="Enfermedad"
                                 layout="vertical"
                                 labelCol={{ span: 24 }}
-                                //name="disease"
+                                name="disease"
                                 rules={[{ required: true, message: 'Debes ingresar el nombre de la enfermedad' }]}
                                 style={{ width: '100%' }}
                             >
-                                <Input 
+                                <Input
                                     value={diseaseFormValue}
                                     onChange={(e) => handleDiseaseValue(e.target.value)}
-                                
+                                    placeholder='Ingresa una enfermedad'
                                 />
                             </Form.Item>
                         </div>
@@ -174,28 +195,30 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                                         label="Nombre de la variante"
                                                         layout="vertical"
                                                         labelCol={{ span: 24 }}
-                                                        //name={`variant_name_${variante.id}`}
+                                                        name={`variant_name_${variante.id}`}
                                                         rules={[{ required: true, message: 'Debes ingresar una variante' }]}
                                                         style={{ width: '100%' }}
                                                     >
                                                         <Input
                                                             value={variante.name}
                                                             onChange={(e) => handleVariantChange(variante.id, 'name', e.target.value)}
+                                                            placeholder='Ingresa una variante de la enfermedad'
                                                         />
                                                     </Form.Item>
                                                 </div>
                                                 <div className='flex gap-5 w-full h-16'>
                                                     <Form.Item
-                                                        label="Descripcion"
+                                                        label="Descripción"
                                                         layout="vertical"
                                                         labelCol={{ span: 24 }}
-                                                        //name={`variant_description_${variante.id}`}
+                                                        name={`variant_description_${variante.id}`}
                                                         rules={[{ required: true, message: 'Debes ingresar una descripcion' }]}
                                                         style={{ width: '100%' }}
                                                     >
                                                         <Input
                                                             value={variante.description}
                                                             onChange={(e) => handleVariantChange(variante.id, 'description', e.target.value)}
+                                                            placeholder='Ingresa una descripción de la enfermedad'
                                                         />
                                                     </Form.Item>
                                                 </div>
@@ -206,11 +229,11 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
                                                     {[1, 2, 3, 4, 5].map((step) => (
                                                         <Form.Item
                                                             key={step}
-                                                            //name={`variant${variante.id}_treatment_${step}`}
+                                                            name={`variant${variante.id}_treatment_${step}`}
                                                             rules={[{ required: true, message: `Debes ingresar el paso ${step} de la Variante #${variante.id}` }]}
                                                         >
                                                             <Input
-                                                                placeholder={`${step}`}
+                                                                placeholder={`Paso: ${step}`}
                                                                 value={variante.treatment[step]}
                                                                 onChange={(e) => handleTreatmentChange(variante.id, step, e.target.value)}
                                                             />

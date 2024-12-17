@@ -276,7 +276,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%', maxWidth: '244.5px'}} placeholder={'Seleccione un centro'}>
+                            <Select style={{ width: '100%', maxWidth: '244.5px' }} placeholder={'Seleccione un centro'}>
                                 <Option value={medicandCenters.center}>{medicandCenters.center}</Option>
                                 <Option value="demo2">Demo 2</Option>
                                 <Option value="demo3">Demo 3</Option>
@@ -290,7 +290,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             rules={[{ required: true, message: 'Seleccione un centro' }]}
                             style={baseStyle}
                         >
-                            <Select style={{ width: '100%',  maxWidth: '244.5px'}} placeholder={'Seleccione un centro'}>
+                            <Select style={{ width: '100%', maxWidth: '244.5px' }} placeholder={'Seleccione un centro'}>
                                 <Option value={medicandCenters.center}>{medicandCenters.center}</Option>
                                 <Option value="demo2">Demo 2</Option>
                                 <Option value="demo3">Demo 3</Option>
@@ -378,17 +378,15 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             <TextArea rows={4} />
                         </Form.Item>
                         {/* BUTTON */}
-                        <div className='flex gap-5 pt-5'>
-
-                            <Button onClick={showModalForm} color="default" variant="filled" htmlType="button" size='large' className='w-fit'>
-                                Cancelar
-                            </Button>
-
+                        <div className='flex w-full justify-between gap-5 pt-5'>
                             <Form.Item>
                                 <Button loading={loading} type="primary" htmlType="submit" size='large' className='w-full'>
                                     Crear Reporte
                                 </Button>
                             </Form.Item>
+                            <Button onClick={showModalForm} color="default" variant="filled" htmlType="button" size='large' className='w-fit'>
+                                Cancelar
+                            </Button>
                         </div>
                     </div>
 
