@@ -1,11 +1,11 @@
-import { ReportUser} from "@/utils/types";
+import { ReportUser } from "@/utils/types";
 import Image from "next/image";
 
 type Props = {
     report: ReportUser | null,
     //user: userData | null,
 }
-export default function ReportPrintTemplate({ report}: Props) {
+export default function ReportPrintTemplate({ report }: Props) {
 
     const today = new Date();
 
@@ -16,7 +16,16 @@ export default function ReportPrintTemplate({ report}: Props) {
 
     const fechaFormateada = `${day}/${month}/${year}`;
 
-    console.log(report) 
+    //const prueba = "Plan a seguir 1 ||Plan a seguir 3|Plan a seguir 4|Plan a seguir 5"
+
+    const procedure = report?.procedure_names?.split('|') ?? [];
+    const treatment = procedure.filter(plan => plan.trim() !== "");
+
+    while (treatment.length < 5) {
+        treatment.push("");
+    }
+
+    console.log(report)
 
     return (
         <div className={'flex flex-col w-full'}>
@@ -114,23 +123,32 @@ export default function ReportPrintTemplate({ report}: Props) {
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Diagnóstico (s):</div>
                         <div className={'p-1 h-20'}>
-                            {report?.disease.name}, {report?.disease_variant.name}
+                            {report && (
+                                report?.diseases.length > 1 ? (
+                                    <div className={'flex flex-col p-1 h-28'}>
+                                        <p>{report?.diseases[0].name}, {report?.diseases[0].variant.name}</p>
+                                        <p>{report?.diseases[1].name}, {report?.diseases[1].variant.name}</p>
+                                    </div>
+                                ) : (
+                                    <p>{report?.diseases[0].name}, {report?.diseases[0].variant.name}</p>
+                                )
+                            )}
                         </div>
                     </div>
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Nombre del (los) procedimiento (s):</div>
                         <div className={'flex flex-col p-1 h-28'}>
-                            <p>1: {report?.disease_variant.treatment["1"]}</p>
-                            <p>2: {report?.disease_variant.treatment["2"]}</p>
-                            <p>3: {report?.disease_variant.treatment["3"]}</p>
-                            <p>4: {report?.disease_variant.treatment["4"]}</p>
-                            <p>5: {report?.disease_variant.treatment["5"]}</p>
+                            {treatment?.map((plan, index) => (
+                                <div key={index}>
+                                    {index + 1}: {plan}
+                                </div>
+                            ))}
                         </div>
                     </div>
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Historia de la enfermedad actual:</div>
-                        <div className={'p-1 max-w-xl h-72 overflow-y-auto'}> 
-                            <p className="whitespace-normal break-words"> 
+                        <div className={'p-1 max-w-xl h-72 overflow-y-auto'}>
+                            <p className="whitespace-normal break-words">
                                 {report?.current_disease_history}
                             </p>
                         </div>
@@ -162,7 +180,7 @@ export default function ReportPrintTemplate({ report}: Props) {
                 <div className="flex flex-col">
                     <div className={'flex flex-col border border-black'}>
                         <div className={'font-semibold bg-black text-white p-1 mt-5'}>Antecedente patológico:</div>
-                        <div className={'p-1 max-w-xl h-96 overflow-y-auto'}> 
+                        <div className={'p-1 max-w-xl h-96 overflow-y-auto'}>
                             <p className="whitespace-normal break-words">
                                 {report?.pathological_antecedent}
                             </p>

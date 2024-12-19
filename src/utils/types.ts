@@ -6,6 +6,8 @@ export type CreateReportTypes = {
     age: number,
     phone: string,
     study_center: string,
+    diseases: string,
+    variants_names:string,
     procedure_center: string,
     traffic_accident: boolean,
     procedure_names: string,
@@ -29,11 +31,11 @@ export type userData = {
 }
 
 export interface Disease {
-    id: number;
+    id: number | string;
     name: string;
-    created_at: string;
-    updated_at: string;
-    variants: Variant[];
+    created_at?: string;
+    updated_at?: string;
+    variants: NewVariant[];
 }
 
 export interface Variant {
@@ -46,12 +48,24 @@ export interface Variant {
     updated_at: string;
 }
 
+export interface NewVariant {
+    id: number | string;
+    disease_id: number;
+    name: string;
+    description: string;
+    treatment: {
+        [key: number]: string;
+    };
+    created_at: string;
+    updated_at: string;
+}
+
 // types.ts
 
-export interface Disease {
-    id: number;
-    name: string;
-}
+// export interface Disease {
+//     id: number;
+//     name: string;
+// }
 
 export interface DiseaseVariant {
     id: number;
@@ -61,7 +75,7 @@ export interface DiseaseVariant {
 }
 
 export interface VariantsTypes {
-    id: number,
+    id: number | string,
     name: string,
     description: string,
     treatment: {
@@ -80,16 +94,22 @@ interface Treatment {
     [key: string]: string;
 }
 
-// Definir el tipo para el centro de salud y sus médicos
+interface VariantTypes {
+    id: number;
+    name: string;
+    description: string;
+    treatment: string;
+}
+
+interface DiseaseTypes {
+    id: number;
+    name: string;
+    variant: VariantTypes;
+}
+
 interface Doctor {
     name: string;
     specialty: string;
-}
-
-interface Center {
-    id: number;
-    name: string;
-    code: number;
 }
 
 interface Affiliate {
@@ -106,7 +126,6 @@ interface Affiliate {
     age: number;
 }
 
-// Tipo principal para el reporte
 export interface ReportUser {
     id: number;
     code: string;
@@ -123,13 +142,10 @@ export interface ReportUser {
     pathological_antecedent: string;
     doctor_name: string;
     center_id: number;
-    disease_id: number;
-    disease_variant_id: number;
     status: number;
     created_at: string;
     updated_at: string;
-    disease: Disease;
-    disease_variant: DiseaseVariant;
+    diseases: DiseaseTypes[];
     center: string;
     centercode: number;
     doctors: Doctor[];

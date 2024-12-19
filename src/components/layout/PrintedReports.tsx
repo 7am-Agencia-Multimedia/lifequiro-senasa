@@ -138,6 +138,7 @@ const PrintedReports = ({status}: Props) => {
                             diseases={diseases}
                             setLastReport={setLastReport}
                             setSuccessReport={setSuccessReport}
+                            setDiseases={setDiseases}
                         />
                     )}
                 </div>)

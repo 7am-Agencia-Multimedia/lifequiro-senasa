@@ -114,6 +114,7 @@ const SideBar: React.FC = () => {
                         items={items}
                         onSelect={handleMenuSelect}
                         onClick={(e) => console.log(e) }
+                        className='px-2'
                     />
                     <Menu
                         theme="dark"

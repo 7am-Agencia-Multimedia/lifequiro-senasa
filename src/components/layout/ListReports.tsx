@@ -4,7 +4,7 @@ import ListUsers from '@/components/form/ListUsers'
 import FormReport from '@/components/reportList/FormReport'
 import SearchUser from '@/components/reportList/SearchUser'
 import { Disease, ReportUser, userData } from '@/utils/types'
-import { Button} from 'antd'
+import { Button, Form} from 'antd'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
@@ -16,6 +16,15 @@ const ListReports = ({status}: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [modalIdUser, setModalIdUser] = useState(false);
     const [modalForm, setModalForm] = useState(false);
+
+    // OBETENER ID DE USUARIO Y DATA USER 
+    
+    const [idUser, setIdUser] = useState<number | undefined>(undefined);
+    const [userData, setUserData] = useState<userData>();
+    const [loading, setLoading] = useState(false);
+    const [errorSearchUser, setErrorSearchUser] = useState(false);
+    const [lastReport, setLastReport] = useState<ReportUser>();
+    const [successReport, setSuccessReport] = useState(false);
 
     // USERS
     const showModalUser = () => {
@@ -65,14 +74,7 @@ const ListReports = ({status}: Props) => {
 
     //onsole.log(diseases) 
 
-    // OBETENER ID DE USUARIO Y DATA USER 
-
-    const [idUser, setIdUser] = useState<number | undefined>(undefined);
-    const [userData, setUserData] = useState<userData>();
-    const [loading, setLoading] = useState(false);
-    const [errorSearchUser, setErrorSearchUser] = useState(false);
-    const [lastReport, setLastReport] = useState<ReportUser>();
-    const [successReport, setSuccessReport] = useState(false);
+    
 
     const handleInputChange = (value: number) => {
         setIdUser(value);
@@ -140,6 +142,7 @@ const ListReports = ({status}: Props) => {
                             diseases={diseases}
                             setLastReport={setLastReport}
                             setSuccessReport={setSuccessReport}
+                            setDiseases={setDiseases}
                         />
                     )}
                 </div>)

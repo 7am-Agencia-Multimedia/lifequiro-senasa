@@ -36,11 +36,16 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
 
     useEffect(() => {
         if (diseaseSelected) {
-            setVariantes(diseaseSelected.variants);
+            setVariantes(diseaseSelected.variants.map( variant => ({
+                id: variant.id,
+                name: variant.name,
+                description: variant.description,
+                treatment: variant.treatment,
+            })));
         }
     }, []);
 
-    const eliminarUltimaVariante = (id: number) => {
+    const eliminarUltimaVariante = (id: number | string) => {
         setVariantes((prevVariantes) => {
             // Elimina la variante seleccionada
             const nuevasVariantes = prevVariantes.filter((variante) => variante.id !== id);
@@ -56,7 +61,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
     };
 
 
-    const handleVariantChange = (id: number, field: keyof VariantsTypes, value: string) => {
+    const handleVariantChange = (id: number | string, field: keyof VariantsTypes, value: string) => {
         setVariantes((prev) =>
             prev.map((variante) =>
                 variante.id === id ? { ...variante, [field]: value } : variante
@@ -64,7 +69,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
         );
     };
 
-    const handleTreatmentChange = (id: number, step: number, value: string) => {
+    const handleTreatmentChange = (id: number | string, step: number, value: string) => {
         setVariantes((prev) =>
             prev.map((variante) =>
                 variante.id === id
@@ -86,7 +91,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
         ]);
     };
 
-    const showDeleteConfirm = (id: number, name: string) => {
+    const showDeleteConfirm = (id: number | string, name: string) => {
         confirm({
             title: `¿Desdeas eliminar la variante ${name}? `,
             icon: <ExclamationCircleFilled />,
@@ -294,7 +299,7 @@ const FromEditDisease = ({ modalForm, showModalForm, showCloseEditModalForm, loa
                                     </Button>
                                 </Form.Item>
                             </div>
-                            <Button onClick={showModalForm} color="default" variant="filled" htmlType="button" size='large' className='w-fit'>
+                            <Button onClick={showCloseEditModalForm} color="default" variant="filled" htmlType="button" size='large' className='w-fit'>
                                 Cancelar
                             </Button>
                         </div>
