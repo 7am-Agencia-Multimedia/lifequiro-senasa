@@ -32,13 +32,13 @@ const onChange: TableProps<Disease>['onChange'] = (pagination, filters, sorter, 
 
 const ListDiseases: React.FC<Props> = ({ diseases, setDiseaseSelected, showEditModalForm, setDeleteUser, changePage, pagination }) => {
 
-    const handleViewReport = (id: number) => {
+    const handleViewReport = (id: any) => {
         setDiseaseSelected(id);
         showEditModalForm()
         console.log(id)
     };
 
-    const showDeleteConfirm = (id: number, name: string) => {
+    const showDeleteConfirm = (id: number | string, name: string) => {
         confirm({
             title: `¿Deseas eliminar la enfermedad ${name}? `,
             icon: <ExclamationCircleFilled />,
@@ -54,7 +54,7 @@ const ListDiseases: React.FC<Props> = ({ diseases, setDiseaseSelected, showEditM
         });
     };
 
-    const handleDeleteDisease = async (id: number) => {
+    const handleDeleteDisease = async (id: number | string) => {
         setDeleteUser(true)
         try {
             const { data: res } = await axios.request({
@@ -82,9 +82,8 @@ const ListDiseases: React.FC<Props> = ({ diseases, setDiseaseSelected, showEditM
             title: 'Creado',
             width: '2%',
             render: (text, record: Disease) => {
-                // Formateamos la fecha usando la función personalizada
-                const formattedDate = formatDate(record.created_at);
-                return formattedDate; // Devuelve la fecha formateada
+                const formattedDate = formatDate(record.created_at || 'default_date');
+                return formattedDate;
             },
         },
         {

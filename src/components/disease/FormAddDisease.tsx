@@ -58,7 +58,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
     };
 
     // Función para manejar cambios en el tratamiento
-    const handleTreatmentChange = (id: number, step: number, value: string) => {
+    const handleTreatmentChange = (id: number | string, step: number, value: string) => {
         setVariantes((prev) =>
             prev.map((variante) =>
                 variante.id === id
@@ -75,7 +75,7 @@ const FormAddDisease = ({ modalForm, showModalForm, setAddDisease }: Props) => {
     };
 
     // Función para manejar los cambios en el nombre y descripción de la variante
-    const handleVariantChange = (id: number, field: keyof VariantsTypes, value: string) => {
+    const handleVariantChange = (id: number | string, field: keyof VariantsTypes, value: string) => {
         setVariantes((prev) =>
             prev.map((variante) =>
                 variante.id === id ? { ...variante, [field]: value } : variante

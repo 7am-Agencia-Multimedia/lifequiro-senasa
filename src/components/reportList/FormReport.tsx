@@ -34,7 +34,7 @@ type Props = {
     setDiseases: React.Dispatch<React.SetStateAction<Disease[]>>;
     setLastReport: React.Dispatch<React.SetStateAction<ReportUser | undefined>>;
     setSuccessReport: React.Dispatch<React.SetStateAction<boolean>>;
-    successReport: boolean;
+    successReport?: boolean;
 }
 
 const { Option } = Select;
