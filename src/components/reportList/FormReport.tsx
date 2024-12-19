@@ -34,14 +34,13 @@ type Props = {
     setDiseases: React.Dispatch<React.SetStateAction<Disease[]>>;
     setLastReport: React.Dispatch<React.SetStateAction<ReportUser | undefined>>;
     setSuccessReport: React.Dispatch<React.SetStateAction<boolean>>;
+    successReport: boolean;
 }
 
 const { Option } = Select;
-const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, setDiseases, setLastReport, setSuccessReport }: Props) => {
+const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, setDiseases, setLastReport, setSuccessReport, successReport }: Props) => {
 
     console.log(diseases)
-
-
     // VARIABLES
     const [form] = Form.useForm();
     const [secondaryDiseases, setSecondaryDiseases] = useState<Disease[]>([]);
@@ -94,6 +93,14 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
     const handleCloseModal = () => {
         form.resetFields()
         clearModal()
+        setTreatment([
+            "",
+            "",
+            "",
+            "",
+            ""
+        ]);
+        setHistoryDisease('')
     }
 
     const handleResetForm = () => {
@@ -371,7 +378,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                 disease_variant_id: selectedVariantSecundary,
             })
         }
-
+        setSuccessReport(!successReport)
         try {
             const { data: response } = await axios.request({
                 url: '/api/report/create',
@@ -398,14 +405,21 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             });
             //console.log('unexito:', response.data)
             setLastReport(response.data)
-            setSuccessReport(true)
+            
         } catch (error) {
             console.log(error);
         } finally {
             form.resetFields()
             setLoading(false);
             showModalForm();
-            setSuccessReport(false)
+            setTreatment([
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]);
+            setHistoryDisease('')
         }
     };
 

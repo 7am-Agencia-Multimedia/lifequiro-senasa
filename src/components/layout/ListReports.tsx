@@ -55,8 +55,10 @@ const ListReports = ({status}: Props) => {
     const [diseases, setDiseases] = useState<Disease[]>([]);
     const [hasRun, setHasRun] = useState(false);
 
+    const [refrest, setRefresh] = useState(false);
+
     useEffect(() => {
-        if (hasRun || !modalForm) return;
+        if (!modalForm) return;
         async function handleGetDiseasesList() {
             try {
                 const { data: res } = await axios.request({
@@ -69,8 +71,8 @@ const ListReports = ({status}: Props) => {
             }
         }
         handleGetDiseasesList();
-        setHasRun(true);
-    }, [modalForm, hasRun]);
+    }, [modalForm]);
+    
 
     //onsole.log(diseases) 
 
@@ -142,6 +144,7 @@ const ListReports = ({status}: Props) => {
                             diseases={diseases}
                             setLastReport={setLastReport}
                             setSuccessReport={setSuccessReport}
+                            successReport={successReport}
                             setDiseases={setDiseases}
                         />
                     )}

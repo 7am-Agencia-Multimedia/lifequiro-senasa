@@ -18,6 +18,7 @@ export default function ClientAuth() {
                 })
                 //console.log(res)
                 setAuthenticated(res.data)
+                console.log('enviando') 
             } catch (error) {
                 resetAuth()
             }

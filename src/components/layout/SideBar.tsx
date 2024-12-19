@@ -44,12 +44,12 @@ const SideBar: React.FC = () => {
 
     useEffect(() => {
         const checkAuth = () => {
-            if (!auth.loading && !auth.authenticated) {
-                router.push('/');
+            if (!auth.authenticated && !auth.loading) {
+                router.push('/'); 
             }
         };
         checkAuth();
-    }, [auth.loading, auth.authenticated, router])
+    }, [auth.authenticated, auth.loading, router]);
 
     const handleMenuSelect = (e: { key: string }) => {
         if (e.key === 'logout') {
@@ -84,7 +84,7 @@ const SideBar: React.FC = () => {
         }
     };
 
-    return (
+    return auth.authenticated ? (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider
                 collapsible
@@ -139,7 +139,7 @@ const SideBar: React.FC = () => {
                 </Content>
             </Layout>
         </Layout>
-    );
+    ) : null
 };
 
 export default SideBar;

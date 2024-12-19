@@ -3,7 +3,7 @@ import axios from "axios";
 export default async function GET(req, res) {
     try {
         const { data: response } = await axios.request({
-            url: `${process.env.SERVER_URL}/diseases`,
+            url: `${process.env.SERVER_URL}/diseases?limit=50`,
             method: 'GET',
             headers: {
                 Authorization: `Bearer ${req.cookies['auth-token']}`
