@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Button, DatePicker, Form, Input, InputNumber, Select, Modal, Switch, Divider, Space } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import axios from 'axios';
-import { CreateReportTypes, Disease, NewVariant, ReportUser, userData, Variant } from '@/utils/types';
+import { AddDisease, CreateReportTypes, Disease, DiseaseTypes, NewVariant, ReportUser, userData, Variant } from '@/utils/types';
 import { useAuthStore } from '@/store/useAuthStore';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -40,16 +40,8 @@ type Props = {
 const { Option } = Select;
 const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, setDiseases, setLastReport, setSuccessReport, successReport }: Props) => {
 
-    console.log(diseases)
     // VARIABLES
     const [form] = Form.useForm();
-    const [secondaryDiseases, setSecondaryDiseases] = useState<Disease[]>([]);
-
-    // SELECTED DISEASES
-    const [nameDiseaseSelected, setNameDiseaseSelected] = useState('')
-    const [nameDiseaseSelectedSecond, setNameDiseaseSelectedSecond] = useState('')
-    const [nameVariantSelected, setNameVariantSelected] = useState('')
-    const [nameVariantSelectedSecond, setNameVariantSelectedSecond] = useState('')
 
     const [selectedDisease, setSelectedDisease] = useState(null);
     const [selectedDiseaseSecundary, setSelectedDiseaseSecundary] = useState(null);
@@ -65,7 +57,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
     const [historyDisease, setHistoryDisease] = useState<string>('');
     const [loading, setLoading] = useState(false);
     const [disabledInputs, setDisabledInputs] = useState(treatment.map(() => false));
-    const [showSecundaryDisease, setShowSecundaryDisease] = useState(false);
+    const [selectedDiseases, setSelectedDiseases] = useState<AddDisease[]>([{ id: Date.now().toString(), name: '' }]);
 
     // MEDICOS PROVISORIO
     const [medicandCenters, setMedicandCenters] = useState({
@@ -107,70 +99,22 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
         form.resetFields()
     }
 
-    // CAMBIO DE ENFERMEDAD PRIMARIA
-    const handleDiseaseChange = (value: any,) => {
-        setSelectedDisease(value);
-        setSelectedVariant(null);
-        setTreatment([
-            "",
-            "",
-            "",
-            "",
-            ""
-        ]);
-        const selectedDisease = diseases.find(disease => disease.id === value);
-        setNameDiseaseSelected(selectedDisease ? selectedDisease.name : '');
-    };
-
-    // CAMBIO DE VARIANTE PRIMARIA
-    const handleVariantChange = (value: any) => {
-        console.log(value);
-        setSelectedVariant(value);
-
-        const selectedDiseaseObj = diseases.find(disease => disease.id === selectedDisease);
-
-        if (selectedDiseaseObj) {
-            const selectedVariantObj = selectedDiseaseObj.variants.find(variant => variant.id === value);
-
-            if (selectedVariantObj) {
-                const variantName = selectedVariantObj.name;
-                setNameVariantSelected(variantName);
-
-                let treatmentArray = [];
-
-                if (typeof selectedVariantObj.treatment === 'string') {
-                    treatmentArray = selectedVariantObj.treatment.split('\n');
-                } else if (Array.isArray(selectedVariantObj.treatment)) {
-                    treatmentArray = selectedVariantObj.treatment;
-                } else if (typeof selectedVariantObj.treatment === 'object') {
-                    treatmentArray = Object.values(selectedVariantObj.treatment);
-                }
-            
-                if (treatmentArray.length < 5) {
-                    treatmentArray = ["", "", "", "", ""];
-                }
-
-                setTreatment(treatmentArray);
-                setHistoryDisease(selectedVariantObj.description);
-            }
-        }
-    };
-
-    // CAMBIO DE TRATAMIENTO
     const handleChangeTreatment = (index: any, value: any) => {
         const updatedTreatment = [...treatment];
-        updatedTreatment[index] = value || '';  // Actualiza el valor del paso específico
+        updatedTreatment[index] = value || ''; 
         setTreatment(updatedTreatment);
 
-        if (selectedDisease && selectedVariant) {
-            // Convierte el tratamiento actualizado en una cadena de texto con saltos de línea
-            const updatedTreatmentText = updatedTreatment.join('\n');
-            updateDisease(selectedDisease, 'treatment', updatedTreatmentText);
-        }
+        if(selectedDiseases.length === 0) return;
+        updateDisease(selectedDiseases[0].id, 'treatment', updatedTreatment);
     };
 
+    const handleChangeHistoryDisease = (event: any) => {
+        setHistoryDisease(event.target.value);
+        
+        if (selectedDiseases.length === 0) return;
+        updateDisease(selectedDiseases[0].id, 'description', event.target.value)
+    };
 
-    // HABILITAR - DESHABILITAR INPUTS
     const toggleDisable = (index: any) => {
         setDisabledInputs(prevState => {
             const newState = [...prevState];
@@ -185,199 +129,56 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
         });
     };
 
-    // CAMBIO DE HISTORIA DE LA ENFERMEDAD
-    const handleChangeHistoryDisease = (event: any) => {
-        setHistoryDisease(event.target.value);
-        if (selectedDisease && selectedVariant) {
-            updateDisease(selectedDisease, 'description', event.target.value)
-        }
-    };
-
-
-    const [nameDisease, setNameDisease] = useState('');
-    const [addDisease, setAddDisease] = useState('');
-    const inputRef = useRef(null);
-    const [newVariantName, setNewVariantName] = useState('');
-
-
-    const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNameDisease(e.target.value);
-        setAddDisease(e.target.value)
-    };
-
-    // AGREGAR NUEVA ENFERMEDAD
-    const addItem = () => {
-        if (nameDisease) {
-            const newItem: Disease = {
-                id: Date.now().toString(),
-                name: nameDisease,
-                //created_at: new Date().toISOString(),
-                //updated_at: new Date().toISOString(),
-                variants: []
-            };
-            setDiseases([...diseases, newItem]);
-            setNameDisease('');
-        }
-    };
-
-    const onVariantNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewVariantName(e.target.value);
-    };
-
-    // AGREGAR NUEVA VARIANTE
-    const addVariant = () => {
-        if (newVariantName && selectedDisease) {
-            const newVariant: NewVariant = {
-                id: Date.now().toString(),
-                disease_id: selectedDisease,
-                name: newVariantName,
-                description: historyDisease,
-                treatment: treatment,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-
-            setDiseases(prevDiseases =>
-                prevDiseases.map(disease =>
-                    disease.id === selectedDisease
-                        ? {
-                            ...disease,
-                            variants: [...disease.variants, newVariant]
-                        }
-                        : disease
-                )
-            );
-            setNewVariantName('');
-        }
-    };
-
-
     // ACTUALIZAR ENFERMEDAD
-    const updateDisease = (id: number | string, key: string, value: string) => {
-        const updateDiseases = diseases.map(diseases => {
-            if (diseases.id === id) {
-                return {
-                    ...diseases,
-                    variants: diseases.variants.map(variant => {
-                        return {
-                            ...variant,
-                            [key]: value,
-                        }
-                    })
-                };
+    const updateDisease = (id: number | string, key: string, value: any) => {
+        const updateDiseases = selectedDiseases.map(d => {
+            if (d.id === id) {
+                const body = {
+                    ...d
+                }
+                if(d.variant) {
+                    body.variant = {
+                        ...d.variant,
+                        [key]: value
+                    }
+                }
+                return body;
             }
-            return diseases;
+            return d;
         })
-        setDiseases(updateDiseases)
+        setSelectedDiseases(updateDiseases)
 
     }
 
-    //SECOND DISEASE
-    useEffect(() => {
-        if (showSecundaryDisease) {
-            setSecondaryDiseases(diseases)
-            console.log('Actualizando disease secundary')
-        }
-    }, [diseases])
-
-    const addSecundaryDisease = () => {
-        setSecondaryDiseases(diseases)
-        setShowSecundaryDisease(true)
+    const addNewDisease = () => {
+        const newDisease = { id: Date.now().toString(), name: '' };
+        setSelectedDiseases(current => ([...current, newDisease]));
     }
-
-    const handleDeleteSecundaryDisease = () => {
-        setSecondaryDiseases([])
-        setShowSecundaryDisease(false)
-    }
-
-    const addVariantSecundary = () => {
-        if (newVariantName && selectedDiseaseSecundary) {
-            const newVariant: NewVariant = {
-                id: Date.now().toString(),
-                disease_id: selectedDiseaseSecundary,
-                name: newVariantName,
-                description: historyDisease,
-                treatment: treatment,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            };
-
-            setDiseases(prevDiseases =>
-                prevDiseases.map(disease =>
-                    disease.id === selectedDiseaseSecundary
-                        ? {
-                            ...disease,
-                            variants: [...disease.variants, newVariant]
-                        }
-                        : disease
-                )
-            );
-
-            setNewVariantName('');
-        }
-    };
-
-    const handleDiseaseSecundaryChange = (value: any) => {
-        setSelectedDiseaseSecundary(value);
-        setSelectedVariantSecundary(null);
-        const selectedDisease = secondaryDiseases.find(disease => disease.id === value);
-        setNameDiseaseSelectedSecond(selectedDisease ? selectedDisease.name : '');
-    };
-
-    const handleVariantSecundaryChange = (value: any) => {
-        setSelectedVariantSecundary(value);
-        const selectedDiseaseObj = diseases.find(disease => disease.id === selectedDisease);
-        if (selectedDiseaseObj) {
-
-            const selectedVariantSecundaryObj = selectedDiseaseObj.variants.find(variant => variant.id === value);
-
-            if (selectedVariantSecundaryObj) {
-                const variantSecundaryName = selectedVariantSecundaryObj.name;
-                setNameVariantSelectedSecond(variantSecundaryName);
-            }
-        }
-    };
-
 
     const onFinish = async (data: CreateReportTypes) => {
-        //console.log('Received values of form: ', data);
 
-        console.log('data:', data.diseases, data.variants_names)
-        console.log('state:', selectedDisease, selectedVariant)
-
-        console.log(nameDiseaseSelected, nameVariantSelected)
-
-        if (!selectedDisease || !selectedVariant) {
+        const findDiseaseWithoutVariant = selectedDiseases.filter(d => !d.variant?.name);
+        if (findDiseaseWithoutVariant.length > 0) {
             return;
         }
         setLoading(true)
 
-        const _diseases = []
-        if (typeof selectedDisease === 'string') {
-            const findDisease = diseases.find(disease => disease.id === selectedDisease)
-            _diseases.push({
-                disease_name: findDisease?.name,
-                disease_variant_name: findDisease?.variants[0].name,
-            })
-        } else if (typeof selectedDisease === 'number') {
-            _diseases.push({
-                disease_id: selectedDisease,
-                disease_variant_id: selectedVariant,
-            })
-        }
-
-        if (typeof selectedDiseaseSecundary === 'string') {
-            const findDisease = diseases.find(disease => disease.id === selectedDiseaseSecundary)
-            _diseases.push({
-                disease_name: findDisease?.name,
-                disease_variant_name: findDisease?.variants[0].name,
-            })
-        } else if (typeof selectedDiseaseSecundary === 'number') {
-            _diseases.push({
-                disease_id: selectedDiseaseSecundary,
-                disease_variant_id: selectedVariantSecundary,
-            })
-        }
+        const _diseases: any[] = []
+        selectedDiseases.forEach(d => {
+            if(typeof d.id === 'string') {
+                if(!d.name || !d.variant?.name) return;
+                _diseases.push({
+                    disease_name: d.name,
+                    disease_variant_name: d.variant.name,
+                })
+            } else if (typeof d.id === 'number') {
+                if (!d.id || !d.variant?.id) return;
+                _diseases.push({
+                    disease_id: d.id,
+                    disease_variant_id: d.variant.id,
+                })
+            }
+        })
         setSuccessReport(!successReport)
         try {
             const { data: response } = await axios.request({
@@ -403,11 +204,9 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                     // disease_variant_id: selectedVariant,
                 },
             });
-            //console.log('unexito:', response.data)
             setLastReport(response.data)
-            
+
         } catch (error) {
-            console.log(error);
         } finally {
             form.resetFields()
             setLoading(false);
@@ -422,8 +221,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             setHistoryDisease('')
         }
     };
-
-    console.log(treatment)
+    console.log(selectedDiseases)
 
     return (
         <Modal
@@ -603,216 +401,27 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                         <Switch />
                     </Form.Item>
                     {/* ENFERMEDAD Y VARIANTE */}
-                    <div className='flex gap-5 w-full h-16'>
-                        <Form.Item
-                            label="Seleccione enfermedad tratante"
-                            layout="vertical"
-                            labelCol={{ span: 24 }}
-                            name="diseases"
-                            rules={[{ required: true, message: 'Seleccione una enfermedad' }]}
-                            style={baseStyle}
-                        >
-                            <Select
-                                style={{ width: '100%', maxWidth: '244.5px' }}
-                                placeholder="Seleccione una enfermedad"
-                                onChange={handleDiseaseChange}
-                                showSearch
-                                filterOption={(input, option) => {
-                                    const optionLabel = Array.isArray(option?.children)
-                                        ? option?.children[0]
-                                        : option?.children || '';
+                    {selectedDiseases.map((d, i) => (
+                        <DiseaseRow
+                            key={i}
+                            i={i}
+                            disease={d}
+                            diseases={diseases}
+                            setDiseases={setDiseases}
+                            selectedDiseases={selectedDiseases}
+                            setSelectedDiseases={setSelectedDiseases}
+                            treatment={{ get: treatment, set: setTreatment }}
+                            history={{ get: historyDisease, set: setHistoryDisease }}
+                        />
+                    ))}
 
-                                    return optionLabel.toLowerCase().includes(input.toLowerCase());
-                                }}
-                                dropdownRender={(menu) => (
-                                    <>
-                                        {menu}
-                                        <Divider style={{ margin: '8px 0' }} />
-                                        <Space style={{ padding: '0 8px 4px' }}>
-                                            <Input
-                                                placeholder="Escriba el nombre de la enfermedad"
-                                                ref={inputRef}
-                                                value={nameDisease}
-                                                onChange={onNameChange}
-                                                onKeyDown={(e) => e.stopPropagation()}
-                                            />
-                                            <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
-
-                                            </Button>
-                                        </Space>
-                                    </>
-                                )}
-                            >
-                                {diseases.map((value) => (
-                                    <Select.Option key={value.id} value={value.id}>
-                                        {value.name}
-                                    </Select.Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            label="Seleccione la variante"
-                            layout="vertical"
-                            labelCol={{ span: 24 }}
-                            name="variants_names"
-                            rules={[{ required: true, message: 'Seleccione una variante' }]}
-                            style={baseStyle}
-                        >
-                            <Select
-                                style={{ width: '100%', maxWidth: '244.5px' }}
-                                onChange={handleVariantChange}
-                                placeholder={'Seleccione una variante'}
-                                showSearch
-                                filterOption={(input, option) => {
-                                    const optionLabel = Array.isArray(option?.children)
-                                        ? option?.children[0]
-                                        : option?.children || '';
-                                    return optionLabel.toLowerCase().includes(input.toLowerCase());
-                                }}
-                                dropdownRender={(menu) => (
-                                    <>
-                                        {menu}
-                                        <Divider style={{ margin: '8px 0' }} />
-                                        <Space style={{ padding: '0 8px 4px' }}>
-                                            <Input
-                                                placeholder="Escriba el nombre de la variante"
-                                                ref={inputRef}
-                                                value={newVariantName}
-                                                onChange={onVariantNameChange}
-                                                onKeyDown={(e) => e.stopPropagation()}
-                                            />
-                                            <Button type="text" icon={<PlusOutlined />} onClick={addVariant} />
-                                        </Space>
-                                    </>
-                                )}
-                            >
-                                {diseases
-                                    .find(disease => disease.id === selectedDisease)
-                                    ?.variants?.map(variant => {
-                                        return (
-                                            <Option key={variant.id} value={variant.id}>
-                                                {variant.name}
-                                            </Option>
-                                        );
-                                    })}
-                            </Select>
-                        </Form.Item>
+                    <div className="flex justify-end items-center w-full">
+                        <div className="w-48">
+                            <Button type="dashed" block onClick={addNewDisease}>
+                                Agregar enfermedad
+                            </Button>
+                        </div>
                     </div>
-                    {showSecundaryDisease && (
-                        <div className='flex gap-5 w-full h-16'>
-                            <Form.Item
-                                label="Seleccione enfermedad secundaria"
-                                layout="vertical"
-                                labelCol={{ span: 24 }}
-                                name="diseasesSecundary"
-                                rules={[{ required: false, message: 'Seleccione una enfermedad' }]}
-                                style={baseStyle}
-                            >
-                                <Select
-                                    style={{ width: '100%', maxWidth: '244.5px' }}
-                                    placeholder="Seleccione una enfermedad"
-                                    onChange={handleDiseaseSecundaryChange}
-                                    showSearch
-                                    filterOption={(input, option) => {
-                                        const optionLabel = Array.isArray(option?.children)
-                                            ? option?.children[0]
-                                            : option?.children || '';
-
-                                        return optionLabel.toLowerCase().includes(input.toLowerCase());
-                                    }}
-                                    dropdownRender={(menu) => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Escriba el nombre de la enfermedad"
-                                                    ref={inputRef}
-                                                    value={nameDisease}
-                                                    onChange={onNameChange}
-                                                    onKeyDown={(e) => e.stopPropagation()}
-                                                />
-                                                <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
-                                                </Button>
-                                            </Space>
-                                        </>
-                                    )}
-                                >
-                                    {secondaryDiseases.map((value) => (
-                                        <Select.Option key={value.id} value={value.id}>
-                                            {value.name}
-                                        </Select.Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                            <Form.Item
-                                label="Seleccione la variante"
-                                layout="vertical"
-                                labelCol={{ span: 24 }}
-                                name="variants_names_secundary"
-                                rules={[{ required: false, message: 'Seleccione una variante' }]}
-                                style={baseStyle}
-                            >
-                                <Select
-                                    style={{ width: '100%', maxWidth: '244.5px' }}
-                                    onChange={handleVariantSecundaryChange}
-                                    placeholder={'Seleccione una variante'}
-                                    showSearch
-                                    filterOption={(input, option) => {
-                                        const optionLabel = Array.isArray(option?.children)
-                                            ? option?.children[0]
-                                            : option?.children || '';
-                                        return optionLabel.toLowerCase().includes(input.toLowerCase());
-                                    }}
-                                    dropdownRender={(menu) => (
-                                        <>
-                                            {menu}
-                                            <Divider style={{ margin: '8px 0' }} />
-                                            <Space style={{ padding: '0 8px 4px' }}>
-                                                <Input
-                                                    placeholder="Escriba el nombre de la variante"
-                                                    ref={inputRef}
-                                                    value={newVariantName} // Usamos el estado `newVariantName`
-                                                    onChange={onVariantNameChange}
-                                                    onKeyDown={(e) => e.stopPropagation()} // Prevenir que la tecla Enter cierre el menú
-                                                />
-                                                <Button type="text" icon={<PlusOutlined />} onClick={addVariantSecundary} />
-                                            </Space>
-                                        </>
-                                    )}
-                                >
-                                    {secondaryDiseases
-                                        .find(disease => disease.id === selectedDiseaseSecundary)
-                                        ?.variants?.map(variant => {
-                                            return (
-                                                <Option key={variant.id} value={variant.id}>
-                                                    {variant.name}
-                                                </Option>
-                                            );
-                                        })}
-                                </Select>
-                            </Form.Item>
-                        </div>
-                    )}
-
-                    {secondaryDiseases.length > 0 ? (
-                        <div className="flex justify-end items-center w-full">
-                            <div>
-                                <Button danger onClick={handleDeleteSecundaryDisease}>
-                                    - Elimiar Enfermedad Secundaria
-                                </Button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="flex justify-end items-center w-full">
-                            <div className="w-48">
-                                <Button type="dashed" block onClick={addSecundaryDisease}>
-                                    + Enfermedad Secundaria
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
 
                     {/* TEXT AREA */}
                     <div className='flex flex-col gap-5 w-full'>
@@ -881,3 +490,237 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 }
 
 export default FormReport;
+
+type DiseaseRowType = {
+    i: number;
+    disease: AddDisease;
+    diseases: Disease[];
+    setDiseases: React.Dispatch<React.SetStateAction<Disease[]>>;
+    selectedDiseases: AddDisease[];
+    setSelectedDiseases: (arg0: AddDisease[]) => void;
+    treatment: { get: string[]; set: (value: string[]) => void; };
+    history: { get: string; set: (value: string) => void; };
+}
+function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSelectedDiseases, treatment, history }: DiseaseRowType) {
+
+    const nameInputRef = useRef(null);
+    const variantInputRef = useRef(null);
+
+    const [nameDisease, setNameDisease] = useState('');
+    const [nameVariant, setNameVariant] = useState('');
+
+    const onNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNameDisease(e.target.value);
+    };
+    const onVariantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNameVariant(e.target.value);
+    };
+
+    const handleDiseaseChange = (id: string | number, index: number) => {
+        const findDisease = diseases.find(d => d.id === id);
+        if (!findDisease) return;
+
+        const updatedDiseases = selectedDiseases.map((d, i) => {
+            if (i === index) {
+                return { id: findDisease.id, name: findDisease.name }
+            }
+            return d;
+        });
+        setSelectedDiseases(updatedDiseases);
+    };
+
+    // CAMBIO DE VARIANTE PRIMARIA
+    const handleVariantChange = (disease_id: string | number, variant_id: string | number, index: number) => {
+        const disease = diseases.find(disease => disease.id === disease_id);
+        if (!disease) return;
+
+        const findVariant = disease.variants.find(variant => variant.id === variant_id);
+        if (!findVariant) return;
+
+        let treatmentArray: string[] = [];
+
+        if (Array.isArray(findVariant.treatment)) {
+            treatmentArray = findVariant.treatment;
+        } else if (typeof findVariant.treatment === 'object') {
+            treatmentArray = Object.values(findVariant.treatment);
+        }
+
+        if (treatmentArray.length < 5) {
+            treatmentArray = ["", "", "", "", ""];
+        }
+
+        
+        if (index === 0) {
+            treatment.set(treatmentArray);
+            history.set(findVariant.description);
+            const updatedDiseases = selectedDiseases.map(d => {
+                if (d.id === disease_id) {
+                    return { ...d, variant: { id: findVariant.id, name: findVariant.name, treatment: treatmentArray, description: findVariant.description } }
+                }
+                return d;
+            });
+            setSelectedDiseases(updatedDiseases);
+            return;
+        }
+
+        const updatedDiseases = selectedDiseases.map(d => {
+            if (d.id === disease_id) {
+                return { ...d, variant: { id: findVariant.id, name: findVariant.name } }
+            }
+            return d;
+        });
+        setSelectedDiseases(updatedDiseases);
+    };
+
+    const addVariant = () => {
+        if (nameVariant && disease.id) {
+            const newVariant: NewVariant = {
+                id: Date.now().toString(),
+                disease_id: disease.id,
+                name: nameVariant,
+                description: history.get,
+                treatment: treatment.get
+            };
+
+            setDiseases((prevDiseases: Disease[]) => prevDiseases.map(d => {
+                if (d.id === disease.id) {
+                    return {
+                        ...d,
+                        variants: [...d.variants, newVariant]
+                    }
+                }
+                return d;
+            })
+            );
+            setNameVariant('');
+        }
+    };
+
+    const addItem = () => {
+        if (nameDisease) {
+            const newItem: Disease = {
+                id: Date.now().toString(),
+                name: nameDisease,
+                variants: []
+            };
+            setDiseases([...diseases, newItem]);
+            setNameDisease('');
+        }
+    };
+
+    const handleDeleteDisease = (id: string | number) => {
+        if(selectedDiseases.length === 1) return;
+        const updatedDiseases = selectedDiseases.filter(d => d.id !== id);
+        setSelectedDiseases(updatedDiseases);
+    }
+
+    return (
+        <div className={'flex flex-col gap-2'}>
+            <div className='flex gap-5 w-full h-16'>
+                <Form.Item
+                    label="Seleccione enfermedad tratante"
+                    layout="vertical"
+                    labelCol={{ span: 24 }}
+                    name={`disease-${i}`}
+                    rules={[{ required: true, message: 'Seleccione una enfermedad' }]}
+                    style={baseStyle}
+                >
+                    <Select
+                        style={{ width: '100%', maxWidth: '244.5px' }}
+                        placeholder="Seleccione una enfermedad"
+                        value={disease.id}
+                        onChange={(id: string | number) => handleDiseaseChange(id, i)}
+                        showSearch
+                        filterOption={(input, option) => {
+                            const optionLabel = Array.isArray(option?.children)
+                                ? option?.children[0]
+                                : option?.children || '';
+
+                            return optionLabel.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        dropdownRender={(menu) => (
+                            <>
+                                {menu}
+                                <Divider style={{ margin: '8px 0' }} />
+                                <Space style={{ padding: '0 8px 4px' }}>
+                                    <Input
+                                        placeholder="Escriba el nombre de la enfermedad"
+                                        ref={nameInputRef}
+                                        value={nameDisease}
+                                        onChange={onNameChange}
+                                        onKeyDown={(e) => e.stopPropagation()}
+                                    />
+                                    <Button type="text" icon={<PlusOutlined />} onClick={addItem}>
+
+                                    </Button>
+                                </Space>
+                            </>
+                        )}
+                    >
+                        {diseases.map((value) => (
+                            <Select.Option key={value.id} value={value.id}>
+                                {value.name}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
+                <Form.Item
+                    label="Seleccione la variante"
+                    layout="vertical"
+                    labelCol={{ span: 24 }}
+                    name={`variant-${i}`}
+                    rules={[{ required: true, message: 'Seleccione una variante' }]}
+                    style={baseStyle}
+                >
+                    <Select
+                        style={{ width: '100%', maxWidth: '244.5px' }}
+                        onChange={(variant_id: string | number) => handleVariantChange(disease.id, variant_id, i)}
+                        placeholder={'Seleccione una variante'}
+                        showSearch
+                        filterOption={(input, option) => {
+                            const optionLabel = Array.isArray(option?.children)
+                                ? option?.children[0]
+                                : option?.children || '';
+                            return optionLabel.toLowerCase().includes(input.toLowerCase());
+                        }}
+                        dropdownRender={(menu) => (
+                            <>
+                                {menu}
+                                <Divider style={{ margin: '8px 0' }} />
+                                <Space style={{ padding: '0 8px 4px' }}>
+                                    <Input
+                                        placeholder="Escriba el nombre de la variante"
+                                        ref={variantInputRef}
+                                        value={nameVariant}
+                                        onChange={onVariantChange}
+                                        onKeyDown={(e) => e.stopPropagation()}
+                                    />
+                                    <Button type="text" icon={<PlusOutlined />} onClick={addVariant} />
+                                </Space>
+                            </>
+                        )}
+                    >
+                        {diseases
+                            .find(d => d.id === disease.id)
+                            ?.variants?.map(variant => {
+                                return (
+                                    <Option key={variant.id} value={variant.id}>
+                                        {variant.name}
+                                    </Option>
+                                );
+                            })}
+                    </Select>
+                </Form.Item>
+            </div>
+            {i !== 0 ? (
+                <div className="flex justify-end items-center w-full">
+                    <div>
+                        <Button danger onClick={() => handleDeleteDisease(disease.id)}>
+                            Elimiar Enfermedad
+                        </Button>
+                    </div>
+                </div>
+            ) : null}
+        </div>
+    )
+}

@@ -50,22 +50,23 @@ export interface Variant {
 
 export interface NewVariant {
     id: number | string;
-    disease_id: number;
+    disease_id: number | string;
     name: string;
     description: string;
     treatment: {
         [key: number]: string;
     };
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 // types.ts
 
-// export interface Disease {
-//     id: number;
-//     name: string;
-// }
+export interface AddDisease {
+    id: number | string;
+    name: string; 
+    variant?: { id: string | number, name: string, description?: string, treatment?: string[] }
+}
 
 export interface DiseaseVariant {
     id: number;
@@ -101,7 +102,7 @@ interface VariantTypes {
     treatment: string;
 }
 
-interface DiseaseTypes {
+export interface DiseaseTypes {
     id: number;
     name: string;
     variant: VariantTypes;
