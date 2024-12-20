@@ -162,15 +162,24 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
         selectedDiseases.forEach(d => {
             if(typeof d.id === 'string') {
                 if(!d.name || !d.variant?.name) return;
-                _diseases.push({
-                    disease_name: d.name,
-                    disease_variant_name: d.variant.name,
-                })
+                const treatment: {[key: string]: string} = {};
+                if(d.variant?.treatment) {
+                    d.variant.treatment.forEach((item, i) => {
+                        treatment[i + 1 as keyof typeof treatment] = item
+                    })
+                }
+                const disease = {
+                    name: d.name,
+                    variant_name: d.variant.name,
+                } as any;
+                if (d.variant.description) disease.variant_description = d.variant.description;
+                if (Object.keys(treatment).length > 0) disease.variant_treatment = treatment;
+                _diseases.push(disease);
             } else if (typeof d.id === 'number') {
                 if (!d.id || !d.variant?.id) return;
                 _diseases.push({
-                    disease_id: d.id,
-                    disease_variant_id: d.variant.id,
+                    id: d.id,
+                    variant_id: d.variant.id,
                 })
             }
         })
