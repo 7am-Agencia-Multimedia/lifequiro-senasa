@@ -42,11 +42,6 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
     // VARIABLES
     const [form] = Form.useForm();
-
-    const [selectedDisease, setSelectedDisease] = useState(null);
-    const [selectedDiseaseSecundary, setSelectedDiseaseSecundary] = useState(null);
-    const [selectedVariant, setSelectedVariant] = useState(null);
-    const [selectedVariantSecundary, setSelectedVariantSecundary] = useState(null);
     const [treatment, setTreatment] = useState<string[]>([
         "",
         "",
@@ -412,6 +407,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                             setSelectedDiseases={setSelectedDiseases}
                             treatment={{ get: treatment, set: setTreatment }}
                             history={{ get: historyDisease, set: setHistoryDisease }}
+                            resetField={(field: string) => form.resetFields([field])}
                         />
                     ))}
 
@@ -500,8 +496,9 @@ type DiseaseRowType = {
     setSelectedDiseases: (arg0: AddDisease[]) => void;
     treatment: { get: string[]; set: (value: string[]) => void; };
     history: { get: string; set: (value: string) => void; };
+    resetField: (field: string) => void;
 }
-function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSelectedDiseases, treatment, history }: DiseaseRowType) {
+function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSelectedDiseases, treatment, history, resetField }: DiseaseRowType) {
 
     const nameInputRef = useRef(null);
     const variantInputRef = useRef(null);
@@ -527,6 +524,7 @@ function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSe
             return d;
         });
         setSelectedDiseases(updatedDiseases);
+        resetField(`variant-${i}`)
     };
 
     // CAMBIO DE VARIANTE PRIMARIA
