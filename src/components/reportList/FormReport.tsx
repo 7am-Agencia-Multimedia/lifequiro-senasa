@@ -30,7 +30,7 @@ type Props = {
     modalForm: boolean,
     showModalForm: () => void,
     userData: userData | undefined,
-    setUserData: React.Dispatch<React.SetStateAction<userData | undefined>>;
+    setUserData?: React.Dispatch<React.SetStateAction<userData | undefined>>;
     clearModal: () => void,
     diseases: Disease[],
     setDiseases: React.Dispatch<React.SetStateAction<Disease[]>>;
@@ -82,7 +82,9 @@ const FormReport = ({ modalForm, showModalForm, userData, setUserData, clearModa
 
     const handleCloseModal = () => {
         form.resetFields()
-        setUserData(undefined)
+        if (setUserData) {
+            setUserData(undefined);
+        }
         clearModal()
         setTreatment([
             "",
@@ -251,7 +253,9 @@ const FormReport = ({ modalForm, showModalForm, userData, setUserData, clearModa
                 ""
             ]);
             setHistoryDisease('')
-            setUserData(undefined)
+            if (setUserData) {
+                setUserData(undefined);
+            }
         }
     };
     console.log(userData) 
