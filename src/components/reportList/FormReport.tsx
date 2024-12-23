@@ -96,30 +96,58 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
     const handleChangeTreatment = (index: any, value: any) => {
         const updatedTreatment = [...treatment];
-        updatedTreatment[index] = value || ''; 
+        updatedTreatment[index] = value || '';
         setTreatment(updatedTreatment);
 
-        if(selectedDiseases.length === 0) return;
+        if (selectedDiseases.length === 0) return;
         updateDisease(selectedDiseases[0].id, 'treatment', updatedTreatment);
     };
 
     const handleChangeHistoryDisease = (event: any) => {
         setHistoryDisease(event.target.value);
-        
+
         if (selectedDiseases.length === 0) return;
         updateDisease(selectedDiseases[0].id, 'description', event.target.value)
     };
 
-    const toggleDisable = (index: any) => {
+    // const toggleDisable = (index: any) => {
+    //     setDisabledInputs(prevState => {
+    //         const newState = [...prevState];
+    //         newState[index] = !newState[index];
+
+    //         if (newState[index]) {
+    //             const newTreatment = [...treatment];
+    //             newTreatment[index] = '';
+    //             setTreatment(newTreatment);
+    //         }
+    //         return newState;
+    //     });
+    // };
+    const [prevValues, setPrevValues] = useState<{ [key: number]: string }>({});
+    const toggleDisable = (index: number) => {
         setDisabledInputs(prevState => {
             const newState = [...prevState];
-            newState[index] = !newState[index];
+            newState[index] = !newState[index]; 
 
             if (newState[index]) {
+                setPrevValues(prev => ({
+                    ...prev,
+                    [index]: treatment[index]
+                }));
+
                 const newTreatment = [...treatment];
                 newTreatment[index] = '';
                 setTreatment(newTreatment);
+            } else {
+                setTreatment(prevTreatment => {
+                    const newTreatment = [...prevTreatment];
+                    if (prevValues[index] !== undefined) {
+                        newTreatment[index] = prevValues[index];
+                    }
+                    return newTreatment;
+                });
             }
+    
             return newState;
         });
     };
@@ -131,7 +159,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                 const body = {
                     ...d
                 }
-                if(d.variant) {
+                if (d.variant) {
                     body.variant = {
                         ...d.variant,
                         [key]: value
@@ -160,10 +188,10 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
         const _diseases: any[] = []
         selectedDiseases.forEach(d => {
-            if(typeof d.id === 'string') {
-                if(!d.name || !d.variant?.name) return;
-                const treatment: {[key: string]: string} = {};
-                if(d.variant?.treatment) {
+            if (typeof d.id === 'string') {
+                if (!d.name || !d.variant?.name) return;
+                const treatment: { [key: string]: string } = {};
+                if (d.variant?.treatment) {
                     d.variant.treatment.forEach((item, i) => {
                         treatment[i + 1 as keyof typeof treatment] = item
                     })
@@ -420,13 +448,15 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                         />
                     ))}
 
-                    <div className="flex justify-end items-center w-full">
-                        <div className="w-48">
-                            <Button type="dashed" block onClick={addNewDisease}>
-                                Agregar enfermedad
-                            </Button>
+                    {selectedDiseases.length <= 4 ? (
+                        <div className="flex justify-end items-center w-full">
+                            <div className="w-48">
+                                <Button type="dashed" block onClick={addNewDisease}>
+                                    Agregar enfermedad
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    ): null}
 
                     {/* TEXT AREA */}
                     <div className='flex flex-col gap-5 w-full'>
@@ -556,7 +586,7 @@ function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSe
             treatmentArray = ["", "", "", "", ""];
         }
 
-        
+
         if (index === 0) {
             treatment.set(treatmentArray);
             history.set(findVariant.description);
@@ -616,7 +646,7 @@ function DiseaseRow({ i, disease, diseases, setDiseases, selectedDiseases, setSe
     };
 
     const handleDeleteDisease = (id: string | number) => {
-        if(selectedDiseases.length === 1) return;
+        if (selectedDiseases.length === 1) return;
         const updatedDiseases = selectedDiseases.filter(d => d.id !== id);
         setSelectedDiseases(updatedDiseases);
     }

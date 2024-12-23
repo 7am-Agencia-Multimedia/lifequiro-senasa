@@ -122,17 +122,18 @@ export default function ReportPrintTemplate({ report }: Props) {
                     </div>
                     <div className={'flex flex-col'}>
                         <div className={'font-semibold bg-black text-white p-1 text-center'}>Diagnóstico (s):</div>
-                        <div className={'p-1 h-20'}>
-                            {report && (
-                                report?.diseases.length > 1 ? (
-                                    <div className={'flex flex-col p-1 h-28'}>
+                        <div className={'p-1 h-[85px]'}>
+                                {report && (
+                                    report?.diseases.length > 1 ? (
+                                        report.diseases.map((disease, index) => (
+                                            <div key={index} className={'flex flex-col'}>
+                                                <p>{disease.name}, {disease.variant.name}</p>
+                                            </div>
+                                        ))
+                                    ) : (
                                         <p>{report?.diseases[0].name}, {report?.diseases[0].variant.name}</p>
-                                        <p>{report?.diseases[1].name}, {report?.diseases[1].variant.name}</p>
-                                    </div>
-                                ) : (
-                                    <p>{report?.diseases[0].name}, {report?.diseases[0].variant.name}</p>
-                                )
-                            )}
+                                    )
+                                )}
                         </div>
                     </div>
                     <div className={'flex flex-col'}>
