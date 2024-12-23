@@ -7,6 +7,7 @@ import axios from 'axios';
 import { AddDisease, CreateReportTypes, Disease, DiseaseTypes, NewVariant, ReportUser, userData, Variant } from '@/utils/types';
 import { useAuthStore } from '@/store/useAuthStore';
 import { PlusOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation';
 
 const { RangePicker } = DatePicker;
 
@@ -29,6 +30,7 @@ type Props = {
     modalForm: boolean,
     showModalForm: () => void,
     userData: userData | undefined,
+    setUserData: React.Dispatch<React.SetStateAction<userData | undefined>>;
     clearModal: () => void,
     diseases: Disease[],
     setDiseases: React.Dispatch<React.SetStateAction<Disease[]>>;
@@ -38,8 +40,9 @@ type Props = {
 }
 
 const { Option } = Select;
-const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, setDiseases, setLastReport, setSuccessReport, successReport }: Props) => {
+const FormReport = ({ modalForm, showModalForm, userData, setUserData, clearModal, diseases, setDiseases, setLastReport, setSuccessReport, successReport }: Props) => {
 
+    const router = useRouter();
     // VARIABLES
     const [form] = Form.useForm();
     const [treatment, setTreatment] = useState<string[]>([
@@ -79,6 +82,7 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
 
     const handleCloseModal = () => {
         form.resetFields()
+        setUserData(undefined)
         clearModal()
         setTreatment([
             "",
@@ -88,10 +92,6 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
             ""
         ]);
         setHistoryDisease('')
-    }
-
-    const handleResetForm = () => {
-        form.resetFields()
     }
 
     const handleChangeTreatment = (index: any, value: any) => {
@@ -237,9 +237,9 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                 },
             });
             setLastReport(response.data)
-
         } catch (error) {
         } finally {
+            router.push('/admin?page=report-list')
             form.resetFields()
             setLoading(false);
             showModalForm();
@@ -251,8 +251,10 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                 ""
             ]);
             setHistoryDisease('')
+            setUserData(undefined)
         }
     };
+    console.log(userData) 
     console.log(selectedDiseases)
 
     return (
@@ -286,9 +288,6 @@ const FormReport = ({ modalForm, showModalForm, userData, clearModal, diseases, 
                         //step_1: treatment[0],
                     }}>
                     <div className='flex flex-col'>
-                        <div className='w-full flex justify-end'>
-                            <button onClick={handleResetForm} className=''><i className="fa-duotone fa-solid fa-rotate cursor-pointer hover:text-blue-500"></i></button>
-                        </div>
                         <div className='flex gap-5 w-full h-16'>
                             <Form.Item
                                 label="Nombre del médico"

@@ -146,6 +146,7 @@ const ListReports = ({status}: Props) => {
                             setSuccessReport={setSuccessReport}
                             successReport={successReport}
                             setDiseases={setDiseases}
+                            setUserData={setUserData}
                         />
                     )}
                 </div>)
