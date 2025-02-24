@@ -7,13 +7,14 @@ export default async function POST(req, res) {
     //     return res.status(400).json({ message: "Missing data in request body" });
     // }
 
-    console.log(req.body)
-
     try {
         const { data: response } = await axios.request({
             url: `${process.env.SERVER_URL}/reports`,
             method: 'POST',
             data: req.body,
+            headers: {
+                Authorization: `Bearer ${req.cookies['auth-token']}`
+            }
         })
         res.status(200).json(response)
     } catch (error) {
